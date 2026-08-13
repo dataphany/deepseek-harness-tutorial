@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepSeek Harness 从零安装与使用教程</title>
+    <meta name="description" content="DeepSeek Harness 从零安装（Windows / macOS）与界面使用教程（含截图与操作说明）。">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f6f8fa;
+            padding: 2rem 1rem;
+            color: #24292f;
+            line-height: 1.6;
+        }
+
+        .container {
+            position: relative;
+            max-width: 960px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 2.5rem 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+
+        [hidden] { display: none !important; }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            border-bottom: 2px solid #eaeef2;
+            padding-bottom: 0.75rem;
+        }
+
+        .subtitle {
+            color: #57606a;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+
+        .lang-switch {
+            position: absolute;
+            top: 1.1rem;
+            right: 1.6rem;
+            display: flex;
+            gap: 0.4rem;
+        }
+        .lang-btn {
+            padding: 0.35rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            background: #f6f8fa;
+            color: #57606a;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .lang-btn:hover { border-color: #0969da; color: #0969da; }
+        .lang-btn.active { background: #0969da; border-color: #0969da; color: #fff; }
+
+        h2 {
+            font-size: 1.45rem;
+            font-weight: 600;
+            margin-top: 2.2rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.3rem;
+            border-bottom: 1px solid #d0d7de;
+        }
+
+        h3 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.6rem;
+            color: #0550ae;
+        }
+
+        p { margin-bottom: 0.6rem; }
+        ul, ol { margin: 0.4rem 0 1rem 1.6rem; }
+        li { margin-bottom: 0.25rem; }
+
+        .toc {
+            background: #f6f8fa;
+            border: 1px solid #d0d7de;
+            border-radius: 8px;
+            padding: 1rem 1.4rem;
+            margin: 1rem 0 0.5rem 0;
+            font-size: 0.95rem;
+        }
+        .toc strong { display: block; margin-bottom: 0.4rem; color: #57606a; }
+        .toc a { color: #0969da; text-decoration: none; margin-right: 1rem; line-height: 2; white-space: nowrap; }
+        .toc a:hover { text-decoration: underline; }
+
+        .env-note {
+            background: #e8f0fe;
+            border-left: 4px solid #0969da;
+            padding: 0.8rem 1.2rem;
+            border-radius: 4px;
+            margin: 1rem 0 1.5rem 0;
+            font-size: 0.95rem;
+        }
+        .env-note strong { color: #0969da; }
+
+        .note {
+            background: #fff8c5;
+            border-left: 4px solid #e3b341;
+            padding: 0.8rem 1.2rem;
+            border-radius: 4px;
+            margin: 1rem 0 1.5rem 0;
+            font-size: 0.95rem;
+        }
+        .note a { color: #0969da; text-decoration: none; }
+        .note a:hover { text-decoration: underline; }
+
+        .step { margin-bottom: 1.5rem; }
+
+        .step-label {
+            display: inline-block;
+            background: #0969da;
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.1rem 0.6rem;
+            border-radius: 20px;
+            margin-bottom: 0.3rem;
+            letter-spacing: 0.3px;
+        }
+
+        .cmd-block {
+            position: relative;
+            background: #f6f8fa;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            padding: 1rem 1.2rem;
+            margin: 0.5rem 0 0.8rem 0;
+            overflow-x: auto;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .cmd-block pre {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            border: none;
+            font-family: "SF Mono", "Fira Code", "JetBrains Mono", "Cascadia Code", monospace;
+            font-size: 0.88rem;
+            white-space: pre-wrap;
+            word-break: break-word;
+            flex: 1;
+            line-height: 1.5;
+        }
+
+        .cmd-block code {
+            background: transparent;
+            padding: 0;
+            font-family: inherit;
+            font-size: inherit;
+            color: #24292f;
+        }
+
+        .cmd-block .badge {
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: #57606a;
+            background: #eaeef2;
+            padding: 0.1rem 0.5rem;
+            border-radius: 12px;
+            display: inline-block;
+            margin-right: 0.5rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: 20px;
+            align-self: center;
+        }
+        .cmd-block .badge.pwsh  { background: #ddf4ff; color: #0550ae; }
+        .cmd-block .badge.terminal { background: #ddf4ff; color: #0550ae; }
+        .cmd-block .badge.browser { background: #daf1e4; color: #116329; }
+        .cmd-block .badge.explorer { background: #fff1e5; color: #953800; }
+        .cmd-block .badge.finder { background: #fff1e5; color: #953800; }
+        .cmd-block .badge.server { background: #fbefff; color: #8250df; }
+        .cmd-block .badge.local { background: #dafbe1; color: #1a7f37; }
+        .cmd-block .badge.config { background: #d4f4ff; color: #0969da; }
+
+        .copy-btn {
+            background: #ffffff;
+            border: 1px solid #d0d7de;
+            border-radius: 4px;
+            padding: 0.25rem 0.6rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #24292f;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.15s, border-color 0.15s;
+            flex-shrink: 0;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+        }
+        .copy-btn:hover { background: #f0f2f4; border-color: #b0b8c0; }
+        .copy-btn.copied { background: #daf1e4; border-color: #2da44e; color: #1a7f37; }
+
+        .link-icon { color: #0969da; text-decoration: none; font-weight: 500; }
+        .link-icon:hover { text-decoration: underline; }
+
+        .cmd-hint { font-size: 0.85rem; color: #57606a; margin-top: -0.3rem; margin-bottom: 0.3rem; }
+
+        /* ---------- 平台切换 ---------- */
+        .platform-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin: 1rem 0 1.2rem 0;
+        }
+        .tab-btn {
+            padding: 0.5rem 1.6rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border: 1px solid #d0d7de;
+            border-radius: 8px;
+            background: #f6f8fa;
+            color: #57606a;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .tab-btn:hover { border-color: #0969da; color: #0969da; }
+        .tab-btn.active { background: #0969da; border-color: #0969da; color: #fff; }
+        .platform-panel { display: none; }
+        .platform-panel.active { display: block; }
+
+        /* ---------- 截图卡片 ---------- */
+        .shot-card {
+            border: 1px solid #d0d7de;
+            border-radius: 8px;
+            margin: 1rem 0 1.6rem 0;
+            overflow: hidden;
+            background: #fff;
+        }
+        .shot-head {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.6rem 1rem;
+            background: #f6f8fa;
+            border-bottom: 1px solid #d0d7de;
+            flex-wrap: wrap;
+        }
+        .shot-no {
+            background: #0969da;
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.1rem 0.6rem;
+            border-radius: 20px;
+        }
+        .shot-body { padding: 1rem; }
+        .shot-caption {
+            background: #f6f8fa;
+            border-left: 3px solid #0969da;
+            padding: 0.6rem 0.9rem;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.92rem;
+            margin-bottom: 0.8rem;
+        }
+        .shot-img-wrap { text-align: center; }
+        .shot-img-wrap img {
+            max-width: 100%;
+            border: 3px solid #dfe2e8;
+            border-radius: 6px;
+            background: #ffffff;
+            padding: 4px;
+            display: inline-block;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        }
+
+        hr { border: 0; border-top: 1px solid #d0d7de; margin: 2rem 0; }
+
+        .footer {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: #57606a;
+            text-align: center;
+            border-top: 1px solid #d0d7de;
+            padding-top: 1.5rem;
+        }
+        .footer a { color: #0969da; text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+
+        table { border-collapse: collapse; margin: 0.6rem 0 1.2rem 0; font-size: 0.92rem; }
+        th, td { border: 1px solid #d0d7de; padding: 0.45rem 0.8rem; text-align: left; }
+        th { background: #f6f8fa; }
+
+        @media (max-width: 600px) {
+            .container { padding: 1.5rem 1rem; }
+            h1 { font-size: 1.5rem; }
+            .cmd-block { flex-wrap: wrap; padding: 0.8rem; }
+            .copy-btn { margin-top: 0.3rem; width: 100%; justify-content: center; }
+            .cmd-block .badge { font-size: 0.6rem; padding: 0.05rem 0.4rem; height: 18px; }
+            .tab-btn { flex: 1; padding: 0.5rem 0.8rem; text-align: center; }
+            .lang-switch { position: static; justify-content: flex-end; margin-bottom: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="lang-switch">
+        <button id="btn-zh" class="lang-btn active" onclick="setLang('zh', true)">中文</button>
+        <button id="btn-en" class="lang-btn" onclick="setLang('en', true)">English</button>
+    </div>
+
+    <h1><span data-zh>🚀 DeepSeek Harness 完整教程</span><span data-en>🚀 DeepSeek Harness Complete Tutorial</span></h1>
+    <p class="subtitle"><span data-zh>Windows / macOS 从零安装 · 界面使用 · 常见问题</span><span data-en>Install from scratch on Windows / macOS · Web UI usage · FAQ</span></p>
+
+    <nav class="toc">
+        <strong><span data-zh>📑 目录</span><span data-en>📑 Contents</span></strong>
+        <a href="#intro"><span data-zh>一、简介</span><span data-en>1. Introduction</span></a>
+        <a href="#install"><span data-zh>二、安装教程</span><span data-en>2. Installation</span></a>
+        <a href="#usage"><span data-zh>三、界面使用教程</span><span data-en>3. Web UI Guide</span></a>
+        <a href="#faq"><span data-zh>常见问题</span><span data-en>FAQ</span></a>
+    </nav>
+
+    <!-- ==================== 一、简介 ==================== -->
+    <h2 id="intro"><span data-zh>一、DeepSeek Harness 是什么</span><span data-en>1. What is DeepSeek Harness?</span></h2>
+    <p><span data-zh><strong>DeepSeek Harness</strong>（简称 DSH）是 DeepSeek 开源的智能体开发框架，自带一个浏览器端的 <strong>Web 图形界面</strong>，默认运行在 <code>http://127.0.0.1:3080</code>。它相当于一个“带手的 AI 助手”：</span><span data-en><strong>DeepSeek Harness</strong> (DSH) is an open-source agent framework by DeepSeek. It ships with a browser-based <strong>Web UI</strong>, served by default at <code>http://127.0.0.1:3080</code> — an AI assistant with hands:</span></p>
+    <ul>
+        <li><span data-zh>💬 交互式对话：像聊天一样向 AI 下达任务；</span><span data-en>💬 Interactive chat to hand tasks to the AI;</span></li>
+        <li><span data-zh>🛠️ 工具调用：读写工作区文件、执行命令、搜索网络、委派子代理、维护计划；</span><span data-en>🛠️ Tool use: read/write workspace files, run commands, search the web, delegate to subagents, and maintain plans;</span></li>
+        <li><span data-zh>🔐 权限审批：涉及敏感操作时会先询问你，操作透明可控；</span><span data-en>🔐 Approval: sensitive operations ask you first — transparent and safe;</span></li>
+        <li><span data-zh>📋 后台任务：长时间运行的任务可在后台执行并随时查看状态；</span><span data-en>📋 Background jobs: run long tasks in the background and check status anytime;</span></li>
+        <li><span data-zh>🧩 模型路由：支持 DeepSeek 官方 API，也支持 OpenAI 兼容端点与自定义 Provider。</span><span data-en>🧩 Model routing: DeepSeek API, plus OpenAI-compatible endpoints and custom providers.</span></li>
+    </ul>
+    <p><span data-zh>本教程覆盖两部分内容：<strong>① 在 Windows / macOS 上从零安装；② 界面使用教程（配截图与操作说明）</strong>。</span><span data-en>This tutorial covers: <strong>① installing from scratch on Windows / macOS; ② a Web UI guide</strong> with screenshots and instructions.</span></p>
+
+    <!-- ==================== 二、安装 ==================== -->
+    <h2 id="install"><span data-zh>二、安装 DeepSeek Harness（Windows / macOS）</span><span data-en>2. Install DeepSeek Harness (Windows / macOS)</span></h2>
+
+    <div class="env-note">
+        <span data-zh><strong>📌 标识说明：</strong>带 <strong>PowerShell</strong> / <strong>终端</strong> 标识的代码块在对应平台的命令行中执行；带 <strong>浏览器</strong> 标识的操作在浏览器中完成；带 <strong>文件资源管理器 / 访达</strong> 标识的操作在系统的文件管理器中完成。</span>
+        <span data-en><strong>📌 Legend:</strong> Blocks marked <strong>PowerShell</strong> / <strong>Terminal</strong> run in the command line of that platform; <strong>Browser</strong> actions happen in a web browser; <strong>File Explorer / Finder</strong> actions happen in the file manager.</span>
+    </div>
+
+    <div class="platform-tabs">
+        <button class="tab-btn active" data-platform="windows" onclick="switchPlatform('windows')">🪟 Windows</button>
+        <button class="tab-btn" data-platform="macos" onclick="switchPlatform('macos')">🍏 macOS</button>
+    </div>
+
+    <!-- ========== Windows 面板 ========== -->
+    <div id="panel-windows" class="platform-panel active">
+        <h3><span data-zh>准备工作</span><span data-en>Preparation</span></h3>
+
+        <div class="step">
+            <span class="step-label">1</span>
+            <p><span data-zh><strong>安装 PowerShell 7</strong>（如已安装可跳过）<br>在浏览器中打开：<a href="https://github.com/PowerShell/PowerShell/releases" target="_blank" class="link-icon">https://github.com/PowerShell/PowerShell/releases</a><br>选择 <code>PowerShell-7.x.x-win-x64.msi</code> 下载，然后在文件资源管理器中双击安装。</span><span data-en><strong>Install PowerShell 7</strong> (skip if already installed)<br>Open in your browser: <a href="https://github.com/PowerShell/PowerShell/releases" target="_blank" class="link-icon">https://github.com/PowerShell/PowerShell/releases</a><br>Download <code>PowerShell-7.x.x-win-x64.msi</code> and double-click it in File Explorer to install.</span></p>
+            <div class="cmd-block" data-cmd="pwsh --version">
+                <span class="badge pwsh">PowerShell</span>
+                <pre><code>pwsh --version</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+            <div class="cmd-hint"><span data-zh>⬆ 在 PowerShell 中验证安装</span><span data-en>⬆ Verify the installation in PowerShell</span></div>
+        </div>
+
+        <div class="step">
+            <span class="step-label">2</span>
+            <p><span data-zh><strong>安装 Git</strong><br>在浏览器中打开：<a href="https://git-scm.com/download/win" target="_blank" class="link-icon">https://git-scm.com/download/win</a><br>下载后，在文件资源管理器中双击安装，一路 <strong>Next</strong> 即可。</span><span data-en><strong>Install Git</strong><br>Open <a href="https://git-scm.com/download/win" target="_blank" class="link-icon">https://git-scm.com/download/win</a><br>Download the installer, double-click it in File Explorer, and click <strong>Next</strong> all the way through.</span></p>
+            <div class="cmd-block" data-cmd="git --version">
+                <span class="badge pwsh">PowerShell</span>
+                <pre><code>git --version</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+            <div class="cmd-hint"><span data-zh>⬆ 在 PowerShell 中验证安装</span><span data-en>⬆ Verify the installation in PowerShell</span></div>
+        </div>
+
+        <div class="step">
+            <span class="step-label">3</span>
+            <p><span data-zh><strong>安装 Node.js LTS</strong><br>在浏览器中打开：<a href="https://nodejs.org/" target="_blank" class="link-icon">https://nodejs.org/</a><br>下载 LTS 版本 <code>.msi</code>，在文件资源管理器中双击安装，一路 <strong>Next</strong>。</span><span data-en><strong>Install Node.js LTS</strong><br>Open <a href="https://nodejs.org/" target="_blank" class="link-icon">https://nodejs.org/</a><br>Download the LTS <code>.msi</code>, double-click it in File Explorer, and click <strong>Next</strong> all the way through.</span></p>
+            <div class="cmd-block" data-cmd="node -v&#10;npm -v">
+                <span class="badge pwsh">PowerShell</span>
+                <pre><code>node -v
+npm -v</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+            <div class="cmd-hint"><span data-zh>⬆ 在 PowerShell 中验证安装</span><span data-en>⬆ Verify the installation in PowerShell</span></div>
+        </div>
+
+        <div class="step">
+            <span class="step-label">4</span>
+            <p><span data-zh><strong>配置 DeepSeek API Key（永久写入系统变量）</strong><br>在浏览器中打开 <a href="https://platform.deepseek.com/" target="_blank" class="link-icon">https://platform.deepseek.com/</a> 登录，进入 API Keys 页面创建密钥。<br>将下方命令中的 <code>sk-你的真实密钥</code> 替换为你的实际密钥，在 PowerShell 中执行：</span><span data-en><strong>Set up your DeepSeek API Key (persistently, via environment variable)</strong><br>Open <a href="https://platform.deepseek.com/" target="_blank" class="link-icon">https://platform.deepseek.com/</a>, sign in, and create a key on the API Keys page.<br>Replace <code>sk-your-real-key</code> below with your actual key, then run it in PowerShell:</span></p>
+            <div class="cmd-block" data-cmd="setx DEEPSEEK_API_KEY &quot;sk-你的真实密钥&quot;">
+                <span class="badge pwsh">PowerShell</span>
+                <pre><code>setx DEEPSEEK_API_KEY "sk-你的真实密钥"</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+            <div class="cmd-block" data-cmd="echo $env:DEEPSEEK_API_KEY">
+                <span class="badge pwsh">PowerShell</span>
+                <pre><code><span data-zh># 重启 PowerShell 后验证</span><span data-en># Restart PowerShell to verify</span>
+echo $env:DEEPSEEK_API_KEY</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+            <div class="cmd-hint"><span data-zh>⬆ 在 PowerShell 中验证是否配置成功</span><span data-en>⬆ Verify it was set correctly in PowerShell</span></div>
+            <div class="note"><span data-zh>💡 <strong>也可以跳过环境变量方式</strong>，安装完成后直接在 Web 界面「设置 → 模型」里填入密钥（见第三章截图 03）。</span><span data-en>💡 <strong>You can also skip the environment variable</strong> and enter the key later in the Web UI under Settings → Models (see Screenshot 03 in Chapter 3).</span></div>
+        </div>
+
+        <div class="step">
+            <span class="step-label">5</span>
+            <p><span data-zh><strong>安装 pnpm</strong>（Node.js 的包管理器）</span><span data-en><strong>Install pnpm</strong> (the Node.js package manager)</span></p>
+            <div class="cmd-block" data-cmd="npm install -g pnpm">
+                <span class="badge pwsh">PowerShell</span>
+                <pre><code>npm install -g pnpm</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+            <div class="cmd-hint"><span data-zh>⬆ 在 PowerShell 中执行</span><span data-en>⬆ Run in PowerShell</span></div>
+        </div>
+
+        <h3><span data-zh>安装 DeepSeek Harness</span><span data-en>Install DeepSeek Harness</span></h3>
+        <p style="color:#57606a; margin-bottom:1rem;"><span data-zh>以下所有命令均在 <strong>PowerShell</strong> 中顺序执行：</span><span data-en>Run the following commands in order in <strong>PowerShell</strong>:</span></p>
+
+        <div class="step">
+            <span class="step-label">6</span>
+            <p><span data-zh><strong>克隆仓库</strong></span><span data-en><strong>Clone the repository</strong></span></p>
+            <div class="cmd-block" data-cmd="git clone https://github.com/deepseek-ai/deepseek-harness.git">
+                <span class="badge pwsh">PowerShell</span>
+                <pre><code>git clone https://github.com/deepseek-ai/deepseek-harness.git</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-label">7</span>
+            <p><span data-zh><strong>进入项目目录</strong></span><span data-en><strong>Enter the project directory</strong></span></p>
+            <div class="cmd-block" data-cmd="cd deepseek-harness">
+                <span class="badge pwsh">PowerShell</span>
+                <pre><code>cd deepseek-harness</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-label">8</span>
+            <p><span data-zh><strong>增加 Node.js 内存限制</strong>（避免构建失败）</span><span data-en><strong>Increase the Node.js memory limit</strong> (to avoid build failures)</span></p>
+            <div class="cmd-block" data-cmd="$env:NODE_OPTIONS=&quot;--max-old-space-size=4096&quot;">
+                <span class="badge pwsh">PowerShell</span>
+                <pre><code>$env:NODE_OPTIONS="--max-old-space-size=4096"</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-label">9</span>
+            <p><span data-zh><strong>安装项目依赖</strong>（此步骤可能耗时较长）</span><span data-en><strong>Install project dependencies</strong> (this may take a while)</span></p>
+            <div class="cmd-block" data-cmd="pnpm install">
+                <span class="badge pwsh">PowerShell</span>
+                <pre><code>pnpm install</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-label">10</span>
+            <p><span data-zh><strong>构建项目</strong>（此步骤可能耗时较长）</span><span data-en><strong>Build the project</strong> (this may take a while)</span></p>
+            <div class="cmd-block" data-cmd="pnpm run build">
+                <span class="badge pwsh">PowerShell</span>
+                <pre><code>pnpm run build</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+        </div>
+
+        <h3><span data-zh>启动使用</span><span data-en>Launch</span></h3>
+
+        <div class="step">
+            <span class="step-label">11</span>
+            <p><span data-zh><strong>启动 Web 界面</strong></span><span data-en><strong>Start the Web UI</strong></span></p>
+            <div class="cmd-block" data-cmd="pnpm dsh web">
+                <span class="badge pwsh">PowerShell</span>
+                <pre><code>pnpm dsh web</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-label">12</span>
+            <p><span data-zh><strong>在浏览器中打开以下地址</strong></span><span data-en><strong>Open the following address in your browser</strong></span></p>
+            <div class="cmd-block" data-cmd="http://127.0.0.1:3080">
+                <span class="badge browser"><span data-zh>浏览器</span><span data-en>Browser</span></span>
+                <pre><code><a href="http://127.0.0.1:3080" target="_blank" style="color:#0969da;text-decoration:none;">http://127.0.0.1:3080</a></code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+        </div>
+
+        <div class="note"><span data-zh>💡 <strong>提示：</strong>设置面板中显示 <strong>“Provided by the launch environment (read-only)”</strong> 表示 API Key 已正确识别，可以直接使用（见第三章截图 04）。</span><span data-en>💡 <strong>Tip:</strong> If the settings panel shows <strong>“Provided by the launch environment (read-only)”</strong>, your API Key was detected and is ready to use (see Screenshot 04 in Chapter 3).</span></div>
+    </div>
+
+    <!-- ========== macOS 面板 ========== -->
+    <div id="panel-macos" class="platform-panel">
+        <h3><span data-zh>准备工作</span><span data-en>Preparation</span></h3>
+
+        <div class="step">
+            <span class="step-label">1</span>
+            <p><span data-zh><strong>安装 Homebrew</strong>（macOS 的包管理器，后续安装均依赖它）<br>在终端中执行以下命令：</span><span data-en><strong>Install Homebrew</strong> (the macOS package manager; later steps depend on it)<br>Run the following command in Terminal:</span></p>
+            <div class="cmd-block" data-cmd="/bin/bash -c &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)&quot;">
+                <span class="badge terminal"><span data-zh>终端</span><span data-en>Terminal</span></span>
+                <pre><code>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+            <div class="cmd-hint"><span data-zh>⬆ 在终端中执行，按提示输入密码并确认安装</span><span data-en>⬆ Run in Terminal; enter your password and confirm when prompted</span></div>
+        </div>
+
+        <div class="step">
+            <span class="step-label">2</span>
+            <p><span data-zh><strong>安装 Git</strong></span><span data-en><strong>Install Git</strong></span></p>
+            <div class="cmd-block" data-cmd="brew install git">
+                <span class="badge terminal"><span data-zh>终端</span><span data-en>Terminal</span></span>
+                <pre><code>brew install git</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+            <div class="cmd-block" data-cmd="git --version">
+                <span class="badge terminal"><span data-zh>终端</span><span data-en>Terminal</span></span>
+                <pre><code><span data-zh># 验证 Git 安装</span><span data-en># Verify Git installation</span>
+git --version</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-label">3</span>
+            <p><span data-zh><strong>安装 Node.js LTS</strong>（推荐使用 nvm 安装，方便管理多个 Node.js 版本）<br>首先安装 nvm：</span><span data-en><strong>Install Node.js LTS</strong> (nvm is recommended for managing multiple Node.js versions)<br>First install nvm:</span></p>
+            <div class="cmd-block" data-cmd="curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.5/install.sh | bash">
+                <span class="badge terminal"><span data-zh>终端</span><span data-en>Terminal</span></span>
+                <pre><code>curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.5/install.sh | bash</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+            <div class="cmd-hint"><span data-zh>⬆ 在终端中执行</span><span data-en>⬆ Run in Terminal</span></div>
+            <div class="cmd-block" data-cmd="source ~/.zshrc&#10;nvm install --lts&#10;nvm use --lts">
+                <span class="badge terminal"><span data-zh>终端</span><span data-en>Terminal</span></span>
+                <pre><code><span data-zh># 加载 nvm（或重启终端）</span><span data-en># Load nvm (or restart Terminal)</span>
+source ~/.zshrc
+
+<span data-zh># 安装最新的 LTS 版本</span><span data-en># Install the latest LTS version</span>
+nvm install --lts
+
+<span data-zh># 切换到该版本</span><span data-en># Switch to that version</span>
+nvm use --lts</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+            <div class="cmd-hint"><span data-zh>⬆ 在终端中依次执行</span><span data-en>⬆ Run in Terminal in order</span></div>
+            <div class="cmd-block" data-cmd="node -v&#10;npm -v">
+                <span class="badge terminal"><span data-zh>终端</span><span data-en>Terminal</span></span>
+                <pre><code><span data-zh># 验证 Node.js 安装</span><span data-en># Verify Node.js installation</span>
+node -v
+npm -v</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+            <div class="cmd-hint"><span data-zh>⬆ 在终端中验证</span><span data-en>⬆ Verify in Terminal</span></div>
+        </div>
+
+        <div class="step">
+            <span class="step-label">4</span>
+            <p><span data-zh><strong>安装 PowerShell 7（可选，但推荐）</strong><br>macOS 自带的 zsh 终端已足够，但 PowerShell 在某些场景下更友好。</span><span data-en><strong>Install PowerShell 7 (optional but recommended)</strong><br>The built-in zsh terminal is sufficient, but PowerShell is friendlier in some scenarios.</span></p>
+            <div class="cmd-block" data-cmd="brew install powershell/tap/powershell">
+                <span class="badge terminal"><span data-zh>终端</span><span data-en>Terminal</span></span>
+                <pre><code>brew install powershell/tap/powershell</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+            <div class="cmd-block" data-cmd="pwsh --version">
+                <span class="badge terminal"><span data-zh>终端</span><span data-en>Terminal</span></span>
+                <pre><code><span data-zh># 验证 PowerShell 安装</span><span data-en># Verify PowerShell installation</span>
+pwsh --version</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-label">5</span>
+            <p><span data-zh><strong>配置 DeepSeek API Key（永久写入 shell 配置文件）</strong><br>在浏览器中打开 <a href="https://platform.deepseek.com/" target="_blank" class="link-icon">https://platform.deepseek.com/</a> 登录，进入 API Keys 页面创建密钥。<br>将下方命令中的 <code>sk-你的真实密钥</code> 替换为你的实际密钥，写入 <code>~/.zshrc</code>（永久生效）：</span><span data-en><strong>Set up your DeepSeek API Key (persistently, in your shell config)</strong><br>Open <a href="https://platform.deepseek.com/" target="_blank" class="link-icon">https://platform.deepseek.com/</a>, sign in, and create a key on the API Keys page.<br>Replace <code>sk-your-real-key</code> below with your actual key, then write it to <code>~/.zshrc</code> (persistent):</span></p>
+            <div class="cmd-block" data-cmd="echo 'export DEEPSEEK_API_KEY=&quot;sk-你的真实密钥&quot;' >> ~/.zshrc">
+                <span class="badge terminal"><span data-zh>终端</span><span data-en>Terminal</span></span>
+                <pre><code>echo 'export DEEPSEEK_API_KEY="sk-你的真实密钥"' >> ~/.zshrc</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+            <div class="cmd-block" data-cmd="source ~/.zshrc&#10;echo $DEEPSEEK_API_KEY">
+                <span class="badge terminal"><span data-zh>终端</span><span data-en>Terminal</span></span>
+                <pre><code><span data-zh># 加载配置（或重启终端）</span><span data-en># Load the config (or restart Terminal)</span>
+source ~/.zshrc
+
+<span data-zh># 验证 API Key 是否配置成功</span><span data-en># Verify the API Key was configured</span>
+echo $DEEPSEEK_API_KEY</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+            <div class="cmd-hint"><span data-zh>⬆ 在终端中执行，应正确显示你的密钥</span><span data-en>⬆ Run in Terminal — your key should be printed</span></div>
+            <div class="note"><span data-zh>💡 <strong>也可以跳过环境变量方式</strong>，安装完成后直接在 Web 界面「设置 → 模型」里填入密钥（见第三章截图 03）。</span><span data-en>💡 <strong>You can also skip the environment variable</strong> and enter the key later in the Web UI under Settings → Models (see Screenshot 03 in Chapter 3).</span></div>
+        </div>
+
+        <div class="step">
+            <span class="step-label">6</span>
+            <p><span data-zh><strong>安装 pnpm</strong>（推荐使用 Homebrew 安装）</span><span data-en><strong>Install pnpm</strong> (recommended: via Homebrew)</span></p>
+            <div class="cmd-block" data-cmd="brew install pnpm">
+                <span class="badge terminal"><span data-zh>终端</span><span data-en>Terminal</span></span>
+                <pre><code>brew install pnpm</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+            <div class="cmd-hint"><span data-zh>⬆ 在终端中执行；若 Homebrew 安装失败（部分 Intel Mac），可改用 <code>npm install -g pnpm</code></span><span data-en>⬆ Run in Terminal; if Homebrew fails (some Intel Macs), use <code>npm install -g pnpm</code> instead</span></div>
+            <div class="cmd-block" data-cmd="pnpm --version">
+                <span class="badge terminal"><span data-zh>终端</span><span data-en>Terminal</span></span>
+                <pre><code><span data-zh># 验证 pnpm 安装</span><span data-en># Verify pnpm installation</span>
+pnpm --version</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+        </div>
+
+        <h3><span data-zh>安装 DeepSeek Harness</span><span data-en>Install DeepSeek Harness</span></h3>
+        <p style="color:#57606a; margin-bottom:1rem;"><span data-zh>以下所有命令均在 <strong>终端</strong> 中顺序执行：</span><span data-en>Run the following commands in order in <strong>Terminal</strong>:</span></p>
+
+        <div class="step">
+            <span class="step-label">7</span>
+            <p><span data-zh><strong>克隆仓库</strong></span><span data-en><strong>Clone the repository</strong></span></p>
+            <div class="cmd-block" data-cmd="git clone https://github.com/deepseek-ai/deepseek-harness.git">
+                <span class="badge terminal"><span data-zh>终端</span><span data-en>Terminal</span></span>
+                <pre><code>git clone https://github.com/deepseek-ai/deepseek-harness.git</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-label">8</span>
+            <p><span data-zh><strong>进入项目目录</strong></span><span data-en><strong>Enter the project directory</strong></span></p>
+            <div class="cmd-block" data-cmd="cd deepseek-harness">
+                <span class="badge terminal"><span data-zh>终端</span><span data-en>Terminal</span></span>
+                <pre><code>cd deepseek-harness</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-label">9</span>
+            <p><span data-zh><strong>增加 Node.js 内存限制</strong>（避免构建失败）</span><span data-en><strong>Increase the Node.js memory limit</strong> (to avoid build failures)</span></p>
+            <div class="cmd-block" data-cmd="export NODE_OPTIONS=&quot;--max-old-space-size=4096&quot;">
+                <span class="badge terminal"><span data-zh>终端</span><span data-en>Terminal</span></span>
+                <pre><code>export NODE_OPTIONS="--max-old-space-size=4096"</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+            <div class="cmd-hint"><span data-zh>⬆ 每次新开终端需重新执行</span><span data-en>⬆ Re-run this in each new terminal session</span></div>
+        </div>
+
+        <div class="step">
+            <span class="step-label">10</span>
+            <p><span data-zh><strong>安装项目依赖</strong>（此步骤可能耗时较长）</span><span data-en><strong>Install project dependencies</strong> (this may take a while)</span></p>
+            <div class="cmd-block" data-cmd="pnpm install">
+                <span class="badge terminal"><span data-zh>终端</span><span data-en>Terminal</span></span>
+                <pre><code>pnpm install</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-label">11</span>
+            <p><span data-zh><strong>构建项目</strong>（此步骤可能耗时较长）</span><span data-en><strong>Build the project</strong> (this may take a while)</span></p>
+            <div class="cmd-block" data-cmd="pnpm run build">
+                <span class="badge terminal"><span data-zh>终端</span><span data-en>Terminal</span></span>
+                <pre><code>pnpm run build</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+        </div>
+
+        <h3><span data-zh>启动使用</span><span data-en>Launch</span></h3>
+
+        <div class="step">
+            <span class="step-label">12</span>
+            <p><span data-zh><strong>启动 Web 界面</strong></span><span data-en><strong>Start the Web UI</strong></span></p>
+            <div class="cmd-block" data-cmd="pnpm dsh web">
+                <span class="badge terminal"><span data-zh>终端</span><span data-en>Terminal</span></span>
+                <pre><code>pnpm dsh web</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-label">13</span>
+            <p><span data-zh><strong>在浏览器中打开以下地址</strong></span><span data-en><strong>Open the following address in your browser</strong></span></p>
+            <div class="cmd-block" data-cmd="http://127.0.0.1:3080">
+                <span class="badge browser"><span data-zh>浏览器</span><span data-en>Browser</span></span>
+                <pre><code><a href="http://127.0.0.1:3080" target="_blank" style="color:#0969da;text-decoration:none;">http://127.0.0.1:3080</a></code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+        </div>
+
+        <div class="note"><span data-zh>💡 <strong>提示：</strong>设置面板中显示 <strong>“Provided by the launch environment (read-only)”</strong> 表示 API Key 已正确识别，可以直接使用（见第三章截图 04）。</span><span data-en>💡 <strong>Tip:</strong> If the settings panel shows <strong>“Provided by the launch environment (read-only)”</strong>, your API Key was detected and is ready to use (see Screenshot 04 in Chapter 3).</span></div>
+    </div>
+
+    <!-- ==================== 三、界面使用教程 ==================== -->
+    <h2 id="usage"><span data-zh>三、界面使用教程（配截图）</span><span data-en>3. Web UI Guide (with Screenshots)</span></h2>
+
+    <p><span data-zh>安装完成后，在浏览器打开 <code>http://127.0.0.1:3080</code> 即可看到 Web 界面，下面按使用顺序介绍界面的各个部分。</span><span data-en>After installation, open <code>http://127.0.0.1:3080</code> in your browser to see the Web UI. Here is a walkthrough of its parts in order of use.</span></p>
+
+    <!-- ✏️ 维护提示（本注释不会显示给访客）：
+         1. 每张截图的图片上方都有「图片介绍文字」，直接修改即可更新页面；
+         2. 图片在 images/ 目录，用真实截图覆盖同名 .png 文件即可自动更新。 -->
+
+    <h3><span data-zh>3.1 启动与基础配置（截图 01–04）</span><span data-en>3.1 Startup & Basic Setup (Screenshots 01–04)</span></h3>
+
+    <div class="shot-card">
+        <div class="shot-head"><span class="shot-no"><span data-zh>截图 01</span><span data-en>Screenshot 01</span></span></div>
+        <div class="shot-body">
+            <div class="shot-caption"><span data-zh>在终端执行 <code>pnpm dsh web</code> 启动服务。看到输出 <code>dsh web: http://127.0.0.1:3080</code> 即启动成功，在浏览器中打开该地址。</span><span data-en>Run <code>pnpm dsh web</code> in the terminal to start the service. When you see <code>dsh web: http://127.0.0.1:3080</code> in the output, it started successfully — open that address in your browser.</span></div>
+            <div class="shot-img-wrap">
+                <img src="images/01-terminal-start.png" alt="终端启动 DeepSeek Harness">
+            </div>
+        </div>
+    </div>
+
+    <div class="shot-card">
+        <div class="shot-head"><span class="shot-no"><span data-zh>截图 02</span><span data-en>Screenshot 02</span></span></div>
+        <div class="shot-body">
+            <div class="shot-caption"><span data-zh>浏览器打开 <code>http://127.0.0.1:3080</code> 后的初始界面。首次使用需先配置模型密钥，再选择工作区，之后才能开始对话。</span><span data-en>The initial screen after opening <code>http://127.0.0.1:3080</code>. On first use, configure your model API key, then select a workspace before you can start a conversation.</span></div>
+            <div class="shot-img-wrap">
+                <img src="images/02-browser-home.png" alt="浏览器中打开的初始界面">
+            </div>
+        </div>
+    </div>
+
+    <div class="shot-card">
+        <div class="shot-head"><span class="shot-no"><span data-zh>截图 03</span><span data-en>Screenshot 03</span></span></div>
+        <div class="shot-body">
+            <div class="shot-caption"><span data-zh>打开「设置 → 模型」，在 DeepSeek 卡片中填入 API 密钥并保存，模型路由立即生效，无需重启服务。</span><span data-en>Open Settings → Models, enter your API key in the DeepSeek card and save. The model route is effective immediately — no server restart needed.</span></div>
+            <div class="shot-img-wrap">
+                <img src="images/03-settings-models.png" alt="设置面板中的模型配置页">
+            </div>
+        </div>
+    </div>
+
+    <div class="shot-card">
+        <div class="shot-head"><span class="shot-no"><span data-zh>截图 04</span><span data-en>Screenshot 04</span></span></div>
+        <div class="shot-body">
+            <div class="shot-caption"><span data-zh>若密钥由环境变量（<code>DEEPSEEK_API_KEY</code>）提供，设置面板显示 “Provided by the launch environment (read-only)”，表示已正确识别，可直接使用。</span><span data-en>If your key is provided by an environment variable (<code>DEEPSEEK_API_KEY</code>), the settings panel shows “Provided by the launch environment (read-only)”, meaning it is recognized and ready to use.</span></div>
+            <div class="shot-img-wrap">
+                <img src="images/04-api-key-recognized.png" alt="环境变量提供的 API Key 显示">
+            </div>
+        </div>
+    </div>
+
+    <h3><span data-zh>3.2 工作区与主界面（截图 05–06）</span><span data-en>3.2 Workspace & Main Layout (Screenshots 05–06)</span></h3>
+
+    <div class="shot-card">
+        <div class="shot-head"><span class="shot-no"><span data-zh>截图 05</span><span data-en>Screenshot 05</span></span></div>
+        <div class="shot-body">
+            <div class="shot-caption"><span data-zh>点击「选择工作区」，添加并选中项目目录。选中后输入框才可用，agent 的文件读写都发生在这个工作区内。</span><span data-en>Click Select Workspace to add and select a project directory. The input box is enabled only after selecting one; the agent operates on files within this workspace.</span></div>
+            <div class="shot-img-wrap">
+                <img src="images/05-select-workspace.png" alt="选择工作区">
+            </div>
+        </div>
+    </div>
+
+    <div class="shot-card">
+        <div class="shot-head"><span class="shot-no"><span data-zh>截图 06</span><span data-en>Screenshot 06</span></span></div>
+        <div class="shot-body">
+            <div class="shot-caption"><span data-zh>主界面包含：会话与导航区、对话消息区（agent 的回复与工具调用在此展示）、底部输入框。输入任务后回车即可开始。</span><span data-en>The main layout includes: a session/navigation area, a message area (agent replies and tool calls), and an input box at the bottom. Type a task and press Enter to begin.</span></div>
+            <div class="shot-img-wrap">
+                <img src="images/06-main-layout.png" alt="主界面整体布局">
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== FAQ ==================== -->
+    <h2 id="faq"><span data-zh>常见问题（FAQ）</span><span data-en>FAQ (Frequently Asked Questions)</span></h2>
+    <ul style="margin-left:1.5rem; margin-bottom:1rem;">
+        <li><span data-zh><code>git 不是内部或外部命令</code> / <code>git: command not found</code> → 未安装 Git，请回到安装章节的准备工作对应步骤。</span><span data-en><code>git is not recognized</code> / <code>git: command not found</code> → Git is not installed; go back to the corresponding Preparation step.</span></li>
+        <li><span data-zh><code>node 不是内部或外部命令</code> / <code>node: command not found</code> → 未安装 Node.js 或未加载 nvm，请回到准备工作对应步骤。</span><span data-en><code>node is not recognized</code> / <code>node: command not found</code> → Node.js is not installed or nvm is not loaded; go back to the corresponding Preparation step.</span></li>
+        <li><span data-zh><code>pnpm: command not found</code> → 重新安装 pnpm：Windows 执行 <code>npm install -g pnpm</code>；macOS 执行 <code>brew install pnpm</code> 或 <code>npm install -g pnpm</code>。</span><span data-en><code>pnpm: command not found</code> → Reinstall pnpm: <code>npm install -g pnpm</code> on Windows; <code>brew install pnpm</code> or <code>npm install -g pnpm</code> on macOS.</span></li>
+        <li><span data-zh>构建时内存不足 → 确保已执行 <code>$env:NODE_OPTIONS="--max-old-space-size=4096"</code>（Windows）/ <code>export NODE_OPTIONS="--max-old-space-size=4096"</code>（macOS）。</span><span data-en>Out of memory during build → make sure you ran <code>$env:NODE_OPTIONS="--max-old-space-size=4096"</code> (Windows) or <code>export NODE_OPTIONS="--max-old-space-size=4096"</code> (macOS).</span></li>
+        <li><span data-zh>API Key 未被识别 → Windows 检查 <code>echo $env:DEEPSEEK_API_KEY</code>；macOS 检查 <code>echo $DEEPSEEK_API_KEY</code>；如未显示，重启终端后重试，或改用界面「设置 → 模型」直接填入密钥。</span><span data-en>API Key not recognized → check <code>echo $env:DEEPSEEK_API_KEY</code> on Windows or <code>echo $DEEPSEEK_API_KEY</code> on macOS; if empty, restart the terminal and retry, or enter the key directly in Settings → Models.</span></li>
+        <li><span data-zh>浏览器打开 <code>127.0.0.1:3080</code> 无响应 → 确认运行 <code>pnpm dsh web</code> 的窗口没有被关闭；查看启动输出是否出现 <code>dsh web: http://127.0.0.1:3080</code>。</span><span data-en>The page at <code>127.0.0.1:3080</code> doesn't respond → make sure the window running <code>pnpm dsh web</code> is still open, and check that the startup output shows <code>dsh web: http://127.0.0.1:3080</code>.</span></li>
+    </ul>
+
+    <div class="footer">
+        <p><span data-zh>📖 <a href="https://github.com/deepseek-ai/deepseek-harness/blob/master/README.md" target="_blank">DeepSeek Harness 官方文档</a> ｜ <a href="https://github.com/deepseek-ai/deepseek-harness" target="_blank">官方仓库</a> ｜ 本教程由 <a href="https://dataphany.com" target="_blank">Dataphany</a> 编写整理</span><span data-en>📖 <a href="https://github.com/deepseek-ai/deepseek-harness/blob/master/README.md" target="_blank">DeepSeek Harness Official Docs</a> ｜ <a href="https://github.com/deepseek-ai/deepseek-harness" target="_blank">Official Repository</a> ｜ Tutorial by <a href="https://dataphany.com" target="_blank">Dataphany</a></span></p>
+    </div>
+
+</div>
+
+<script>
+    // 语言切换
+    function setLang(lang, save) {
+        document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN';
+        document.querySelectorAll('[data-zh]').forEach(function (el) { el.hidden = lang !== 'zh'; });
+        document.querySelectorAll('[data-en]').forEach(function (el) { el.hidden = lang !== 'en'; });
+        document.querySelectorAll('.copy-btn').forEach(function (b) { b.textContent = lang === 'en' ? 'Copy' : '复制'; });
+        document.getElementById('btn-zh').classList.toggle('active', lang === 'zh');
+        document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+        document.title = lang === 'en'
+            ? 'DeepSeek Harness Tutorial: Install & Usage Guide'
+            : 'DeepSeek Harness 从零安装与使用教程';
+        if (save) {
+            try { localStorage.setItem('dsh-lang', lang); } catch (e) {}
+        }
+    }
+
+    // 初始化语言（记住用户上次选择）
+    (function () {
+        var saved = null;
+        try { saved = localStorage.getItem('dsh-lang'); } catch (e) {}
+        setLang(saved === 'en' ? 'en' : 'zh', false);
+    })();
+
+    // 平台切换
+    function switchPlatform(platform) {
+        document.querySelectorAll('.tab-btn').forEach(function (btn) {
+            btn.classList.toggle('active', btn.getAttribute('data-platform') === platform);
+        });
+        document.querySelectorAll('.platform-panel').forEach(function (panel) {
+            panel.classList.toggle('active', panel.id === 'panel-' + platform);
+        });
+    }
+
+    // 复制命令
+    function copyCmd(btn) {
+        const block = btn.closest('.cmd-block');
+        let textToCopy = block.getAttribute('data-cmd');
+        if (!textToCopy) {
+            const pre = block.querySelector('pre');
+            textToCopy = pre ? pre.textContent.trim() : '';
+        }
+        if (!textToCopy) return;
+
+        navigator.clipboard.writeText(textToCopy).then(function () {
+            copiedFeedback(btn);
+        }).catch(function () {
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                copiedFeedback(btn);
+            } catch (e) {
+                alert('复制失败，请手动复制。');
+            }
+            document.body.removeChild(textarea);
+        });
+    }
+
+    function copiedFeedback(btn) {
+        const originalText = btn.textContent;
+        btn.textContent = btn.textContent === 'Copy' || document.documentElement.lang === 'en' ? 'Copied ✓' : '已复制 ✓';
+        btn.classList.add('copied');
+        setTimeout(function () {
+            btn.textContent = originalText;
+            btn.classList.remove('copied');
+        }, 2000);
+    }
+</script>
+
+</body>
+</html>
