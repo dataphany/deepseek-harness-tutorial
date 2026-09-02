@@ -495,6 +495,44 @@ echo $env:DEEPSEEK_API_KEY</code></pre>
             </div>
         </div>
 
+        <div class="step">
+            <span class="step-label">13</span>
+            <p><span data-zh><strong>获取 GitHub 最新更新（命令行）</strong><br>DeepSeek Harness 官方仓库会持续更新，随时可通过 Git 命令行拉取最新代码：</span><span data-en><strong>Pull the latest update from GitHub (command line)</strong><br>The DeepSeek Harness repository is updated continuously — pull the latest code any time from the command line:</span></p>
+            <div class="cmd-block" data-cmd="cd deepseek-harness&#10;git pull origin master&#10;pnpm install&#10;pnpm run build&#10;pnpm dsh web">
+                <span class="badge pwsh">PowerShell</span>
+                <pre><code><span data-zh># 1. 进入项目目录</span><span data-en># 1. Enter the project directory</span>
+cd deepseek-harness
+<span data-zh># 2. 从 GitHub 拉取最新更新（官方仓库 master 分支）</span><span data-en># 2. Pull the latest update from GitHub (the official repo's master branch)</span>
+git pull origin master
+<span data-zh># 3. 同步依赖（锁文件有变化时执行）</span><span data-en># 3. Sync dependencies (when the lockfile changed)</span>
+pnpm install
+<span data-zh># 4. 重新构建（前端界面有变化时执行）</span><span data-en># 4. Rebuild (when the web frontend changed)</span>
+pnpm run build
+<span data-zh># 5. 重新启动 Web 界面</span><span data-en># 5. Restart the Web UI</span>
+pnpm dsh web</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+            <div class="cmd-hint"><span data-zh>⬆ 按顺序在 PowerShell 中执行</span><span data-en>⬆ Run in PowerShell in order</span></div>
+
+            <div class="note"><span data-zh>💡 <strong>如果第 2 步 <code>git pull</code> 失败</strong>（提示本地有未提交改动）：按下面完整流程处理。每一步之后都用 <code>git status</code> 查看输出，决定是否进入下一步——有没有冲突也以它的输出为准：</span><span data-en>💡 <strong>If step 2 (<code>git pull</code>) fails</strong> (it says you have uncommitted local changes): follow the full flow below. After each step, run <code>git status</code> and read its output to decide whether to continue — it is also what tells you whether there are conflicts:</span></div>
+            <div class="cmd-block" data-cmd="git status&#10;git add .&#10;git commit -m &quot;wip&quot;&#10;git pull origin master&#10;git status&#10;git add .&#10;git commit -m &quot;merge&quot;">
+                <span class="badge pwsh">PowerShell</span>
+                <pre><code><span data-zh># 1. 查看本地改动（有未提交改动时 git pull 才会失败）</span><span data-en># 1. Inspect local changes (uncommitted changes are why git pull fails)</span>
+git status
+<span data-zh># 2. 提交本地改动（把 wip 换成你自己的说明文字）</span><span data-en># 2. Commit the local changes (replace wip with your own message)</span>
+git add .
+git commit -m "wip"
+<span data-zh># 3. 重新拉取最新更新</span><span data-en># 3. Pull the latest update again</span>
+git pull origin master
+<span data-zh># 4. 查看是否冲突（若显示标着 both modified 的冲突文件，继续第 5 步；否则到此完成）</span><span data-en># 4. Check for conflicts (if files marked "both modified" appear, continue to step 5; otherwise you are done)</span>
+git status
+<span data-zh># 5.（仅当有冲突时）用 Notepad++ 打开冲突文件：保留想要的内容，删除 &lt;&lt;&lt;&lt;&lt;&lt;&lt; / ======= / &gt;&gt;&gt;&gt;&gt;&gt;&gt; 标记行，保存；然后标记为已解决并完成合并提交</span><span data-en># 5. (only if there are conflicts) open the files in Notepad++, keep what you want, delete the &lt;&lt;&lt;&lt;&lt;&lt;&lt; / ======= / &gt;&gt;&gt;&gt;&gt;&gt;&gt; marker lines, and save; then mark them as resolved and finish the merge commit</span>
+git add .
+git commit -m "merge"</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+        </div>
+
         <div class="note"><span data-zh>💡 <strong>提示：</strong>设置面板中显示 <strong>“Provided by the launch environment (read-only)”</strong> 表示 API Key 已正确识别，可以直接使用（见第三章截图 04）。</span><span data-en>💡 <strong>Tip:</strong> If the settings panel shows <strong>“Provided by the launch environment (read-only)”</strong>, your API Key was detected and is ready to use (see Screenshot 04 in Chapter 3).</span></div>
     </div>
 
@@ -687,6 +725,44 @@ pnpm --version</code></pre>
             <div class="cmd-block" data-cmd="http://127.0.0.1:3080">
                 <span class="badge browser"><span data-zh>浏览器</span><span data-en>Browser</span></span>
                 <pre><code><a href="http://127.0.0.1:3080" target="_blank" style="color:#0969da;text-decoration:none;">http://127.0.0.1:3080</a></code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-label">14</span>
+            <p><span data-zh><strong>获取 GitHub 最新更新（命令行）</strong><br>DeepSeek Harness 官方仓库会持续更新，随时可通过 Git 命令行拉取最新代码：</span><span data-en><strong>Pull the latest update from GitHub (command line)</strong><br>The DeepSeek Harness repository is updated continuously — pull the latest code any time from the command line:</span></p>
+            <div class="cmd-block" data-cmd="cd deepseek-harness&#10;git pull origin master&#10;pnpm install&#10;pnpm run build&#10;pnpm dsh web">
+                <span class="badge terminal"><span data-zh>终端</span><span data-en>Terminal</span></span>
+                <pre><code><span data-zh># 1. 进入项目目录</span><span data-en># 1. Enter the project directory</span>
+cd deepseek-harness
+<span data-zh># 2. 从 GitHub 拉取最新更新（官方仓库 master 分支）</span><span data-en># 2. Pull the latest update from GitHub (the official repo's master branch)</span>
+git pull origin master
+<span data-zh># 3. 同步依赖（锁文件有变化时执行）</span><span data-en># 3. Sync dependencies (when the lockfile changed)</span>
+pnpm install
+<span data-zh># 4. 重新构建（前端界面有变化时执行）</span><span data-en># 4. Rebuild (when the web frontend changed)</span>
+pnpm run build
+<span data-zh># 5. 重新启动 Web 界面</span><span data-en># 5. Restart the Web UI</span>
+pnpm dsh web</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+            <div class="cmd-hint"><span data-zh>⬆ 按顺序在终端中执行</span><span data-en>⬆ Run in Terminal in order</span></div>
+
+            <div class="note"><span data-zh>💡 <strong>如果第 2 步 <code>git pull</code> 失败</strong>（提示本地有未提交改动）：按下面完整流程处理。每一步之后都用 <code>git status</code> 查看输出，决定是否进入下一步——有没有冲突也以它的输出为准：</span><span data-en>💡 <strong>If step 2 (<code>git pull</code>) fails</strong> (it says you have uncommitted local changes): follow the full flow below. After each step, run <code>git status</code> and read its output to decide whether to continue — it is also what tells you whether there are conflicts:</span></div>
+            <div class="cmd-block" data-cmd="git status&#10;git add .&#10;git commit -m &quot;wip&quot;&#10;git pull origin master&#10;git status&#10;git add .&#10;git commit -m &quot;merge&quot;">
+                <span class="badge terminal"><span data-zh>终端</span><span data-en>Terminal</span></span>
+                <pre><code><span data-zh># 1. 查看本地改动（有未提交改动时 git pull 才会失败）</span><span data-en># 1. Inspect local changes (uncommitted changes are why git pull fails)</span>
+git status
+<span data-zh># 2. 提交本地改动（把 wip 换成你自己的说明文字）</span><span data-en># 2. Commit the local changes (replace wip with your own message)</span>
+git add .
+git commit -m "wip"
+<span data-zh># 3. 重新拉取最新更新</span><span data-en># 3. Pull the latest update again</span>
+git pull origin master
+<span data-zh># 4. 查看是否冲突（若显示标着 both modified 的冲突文件，继续第 5 步；否则到此完成）</span><span data-en># 4. Check for conflicts (if files marked "both modified" appear, continue to step 5; otherwise you are done)</span>
+git status
+<span data-zh># 5.（仅当有冲突时）用 Notepad++ 打开冲突文件：保留想要的内容，删除 &lt;&lt;&lt;&lt;&lt;&lt;&lt; / ======= / &gt;&gt;&gt;&gt;&gt;&gt;&gt; 标记行，保存；然后标记为已解决并完成合并提交</span><span data-en># 5. (only if there are conflicts) open the files in Notepad++, keep what you want, delete the &lt;&lt;&lt;&lt;&lt;&lt;&lt; / ======= / &gt;&gt;&gt;&gt;&gt;&gt;&gt; marker lines, and save; then mark them as resolved and finish the merge commit</span>
+git add .
+git commit -m "merge"</code></pre>
                 <button class="copy-btn" onclick="copyCmd(this)">复制</button>
             </div>
         </div>
