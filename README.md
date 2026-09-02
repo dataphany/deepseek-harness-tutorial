@@ -130,6 +130,89 @@ http://127.0.0.1:3080
 
 > 💡 **提示：** 设置面板中显示 **“Provided by the launch environment (read-only)”** 表示 API Key 已正确识别，可以直接使用。
 
+**13. 获取 GitHub 最新更新（命令行）**
+
+DeepSeek Harness 官方仓库会持续更新，随时可通过 Git 命令行拉取最新代码：
+
+```powershell
+# 1. 进入项目目录
+cd deepseek-harness
+# 2. 从 GitHub 拉取最新更新（官方仓库 master 分支）
+git pull origin master
+# 3. 同步依赖（锁文件有变化时执行）
+pnpm install
+# 4. 重新构建（前端界面有变化时执行）
+pnpm run build
+# 5. 重新启动 Web 界面
+pnpm dsh web
+```
+
+> 💡 **如果第 2 步 `git pull` 失败**（提示本地有未提交改动）：按下面完整流程处理。每一步之后都用 `git status` 查看输出，决定是否进入下一步——有没有冲突也以它的输出为准：
+
+```powershell
+# 1. 查看本地改动（有未提交改动时 git pull 才会失败）
+git status
+# 2. 提交本地改动（把 wip 换成你自己的说明文字）
+git add .
+git commit -m "wip"
+# 3. 重新拉取最新更新
+git pull origin master
+# 4. 查看是否冲突（若显示标着 both modified 的冲突文件，继续第 5 步；否则到此完成）
+git status
+# 5.（仅当有冲突时）用编辑器打开冲突文件：保留想要的内容，删除 <<<<<<< / ======= / >>>>>>> 标记行，保存；然后标记为已解决并完成合并提交
+git add .
+git commit -m "merge"
+```
+
+**14.（可选·推荐）把 DSH 数据从 C 盘迁到其他盘**
+
+DSH 默认把 **Home**（所有会话、设置、凭据、技能等数据）放在 `~/.dsh`，在 Windows 上即 `C:\Users\你的用户名\.dsh`，并随使用不断增大。留在 C 盘会挤占系统盘、拖慢电脑，建议迁到其他盘。迁移目的地可自选，但要满足两条规则：① 不在 C 盘；② 在 `deepseek-harness` 项目目录之外（避免以后更新/重建项目时被牵连）。以下以 `F:\AgentHarness\.dsh` 为例，可换成你自己的目录。
+
+> ⚠️ 先把正在运行的 `pnpm dsh web` 停掉：回到运行它的窗口按 `Ctrl+C`。否则有文件正被占用，迁移会失败。
+
+```powershell
+# 把 C 盘的 .dsh 复制到目标位置（只复制，源文件原样保留；路径换成你自己的）
+robocopy "$env:USERPROFILE\.dsh" "F:\AgentHarness\.dsh" /E /R:1 /W:1
+```
+
+> robocopy 的退出码 0 或 1 都表示成功（8 及以上才是失败），看到提示别当报错；若目标目录不存在会自动创建。本命令只复制、不删除：C 盘原来的 .dsh 会原样保留，先不要清理，等确认新位置稳定后再自行删除。
+
+```powershell
+# 把新位置永久写入用户环境变量 DSH_HOME（DSH 启动时会优先读取它；路径换成你自己的）
+setx DSH_HOME "F:\AgentHarness\.dsh"
+```
+
+> `setx` 只对之后新开的程序生效——执行完请关闭并重新打开终端。
+
+```powershell
+# 验证（在重新打开的终端里执行，应显示新路径 F:\AgentHarness\.dsh）
+echo $env:DSH_HOME
+```
+
+> 显示新路径后，进入项目目录重新执行 `pnpm dsh web` 启动；浏览器里原来的会话、设置与凭据都还在（新位置读取的是同一份数据的副本）。在确认新位置稳定之前，C 盘原来的 `.dsh` 请先保留不要删除。
+
+> 🗑️ **确认新位置稳定后，再删除 C 盘上的旧文件**：“稳定”指重启后能正常启动、原会话与设置都还在（也可以先正常使用几天再决定）。删除前先确认 `echo $env:DSH_HOME` 显示的是新路径，并先关掉 `pnpm dsh web`。删除操作不可恢复。
+
+```powershell
+# （确认稳定后）删除 C 盘上旧的 .dsh —— 不可恢复，请谨慎执行
+Remove-Item "$env:USERPROFILE\.dsh" -Recurse -Force
+```
+
+> 📋 **C 盘上属于 DSH 安装、可识别并按需删除的内容**（每一项都等它在新位置的对应物验证正常后再删）：
+> 1. `C:\Users\你的用户名\.dsh` — 旧 Home，即上面的删除命令目标；
+> 2. 当初克隆在 C 盘的 `deepseek-harness` 项目目录（含 `node_modules`，通常体积最大）— 新盘副本验证正常、能按步骤 13 更新后再删。
+
+> 💡 **项目与依赖缓存同样占 C 盘（通常比 Home 更大）**：① `deepseek-harness` 项目目录（含 `node_modules`）若当初克隆在 C 盘，请把整个文件夹搬到其他盘，或在其他盘重新克隆一份（之后照常按第 13 步 `git pull` 更新）；② pnpm 依赖缓存与 npm 缓存默认也在 C 盘，可重定向到其他盘，先执行 `pnpm store path` 查看当前位置，再执行下面命令（路径可换成你自己的）：
+
+```powershell
+# 把 pnpm 依赖缓存重定向到其他盘（路径换成你自己的）
+pnpm config set store-dir "F:\AgentHarness\.pnpm-store"
+# 把 npm 缓存重定向到其他盘
+npm config set cache "F:\AgentHarness\npm-cache"
+```
+
+> 重定向后，下一次 `pnpm install` / `npm install`（包括第 13 步的更新构建）会写到新位置；旧缓存先别急着删，等在新位置成功执行过一次安装确认正常后再清理。
+
 #### macOS
 
 **准备工作**
@@ -232,6 +315,86 @@ http://127.0.0.1:3080
 
 > 💡 **提示：** 设置面板中显示 **“Provided by the launch environment (read-only)”** 表示 API Key 已正确识别，可以直接使用。
 
+**14. 获取 GitHub 最新更新（命令行）**
+
+DeepSeek Harness 官方仓库会持续更新，随时可通过 Git 命令行拉取最新代码：
+
+```bash
+# 1. 进入项目目录
+cd deepseek-harness
+# 2. 从 GitHub 拉取最新更新（官方仓库 master 分支）
+git pull origin master
+# 3. 同步依赖（锁文件有变化时执行）
+pnpm install
+# 4. 重新构建（前端界面有变化时执行）
+pnpm run build
+# 5. 重新启动 Web 界面
+pnpm dsh web
+```
+
+> 💡 **如果第 2 步 `git pull` 失败**（提示本地有未提交改动）：按下面完整流程处理。每一步之后都用 `git status` 查看输出，决定是否进入下一步——有没有冲突也以它的输出为准：
+
+```bash
+# 1. 查看本地改动（有未提交改动时 git pull 才会失败）
+git status
+# 2. 提交本地改动（把 wip 换成你自己的说明文字）
+git add .
+git commit -m "wip"
+# 3. 重新拉取最新更新
+git pull origin master
+# 4. 查看是否冲突（若显示标着 both modified 的冲突文件，继续第 5 步；否则到此完成）
+git status
+# 5.（仅当有冲突时）用编辑器打开冲突文件：保留想要的内容，删除 <<<<<<< / ======= / >>>>>>> 标记行，保存；然后标记为已解决并完成合并提交
+git add .
+git commit -m "merge"
+```
+
+**15.（可选·推荐）把 DSH 数据从系统盘迁到其他位置**
+
+DSH 默认把 **Home**（所有会话、设置、凭据、技能等数据）放在 `~/.dsh`（启动盘上），并随使用不断增大。如果 Mac 只有一块磁盘，本步可跳过；如果还有第二块磁盘/分区，建议迁过去，避免挤占系统盘。目的地可自选，但要满足两条规则：① 不在系统盘；② 在 `deepseek-harness` 项目目录之外。以下以 `/Volumes/Data/.dsh` 为例（Data 是第二块磁盘的名字，可换成你自己的；不建议放移动硬盘，拔掉后数据将无法访问）。
+
+> ⚠️ 先把正在运行的 `pnpm dsh web` 停掉：回到运行它的窗口按 `Ctrl+C`。否则有文件正被占用，迁移会失败。
+
+```bash
+# 1. 确认目标磁盘存在（把 Data 换成你自己的磁盘名）
+mkdir -p "/Volumes/Data"
+# 2. 把 ~/.dsh 复制到目标位置（只复制，源保留；路径换成你自己的）
+cp -R ~/.dsh "/Volumes/Data/.dsh"
+```
+
+```bash
+# 1. 把新位置写入 ~/.zshrc（永久生效；路径换成你自己的）
+echo 'export DSH_HOME="/Volumes/Data/.dsh"' >> ~/.zshrc
+# 2. 加载配置（或重启终端）
+source ~/.zshrc
+# 3. 验证
+echo $DSH_HOME
+```
+
+> 在终端中执行；最后一行应显示你的新路径。然后进入项目目录重新执行 `pnpm dsh web`，浏览器里原来的会话、设置与凭据都还在（新位置读取的是同一份数据的副本）。在确认新位置稳定之前，源位置的 `~/.dsh` 请先保留不要删除。
+
+> 🗑️ **确认新位置稳定后，再删除源位置的旧文件**：“稳定”指重启后能正常启动、原会话与设置都还在（也可以先正常使用几天再决定）。删除前先确认 `echo $DSH_HOME` 显示的是新路径，并先关掉 `pnpm dsh web`。删除操作不可恢复。
+
+```bash
+# （确认稳定后）删除源位置的 ~/.dsh —— 不可恢复，请谨慎执行
+rm -rf ~/.dsh
+```
+
+> 📋 **系统盘上属于 DSH 安装、可识别并按需删除的内容**（每一项都等它在新位置的对应物验证正常后再删）：
+> 1. `~/.dsh` — 原 Home 残留，即上面的删除命令目标；
+> 2. 当初克隆在系统盘的 `deepseek-harness` 项目目录（含 `node_modules`，通常体积最大）— 新磁盘副本验证正常、能按步骤 14 更新后再删。
+
+> 💡 **项目与依赖缓存同样占系统盘空间（通常比 Home 更大）**：① `deepseek-harness` 项目目录（含 `node_modules`）若当初克隆在系统盘，请把整个文件夹搬到其他磁盘，或在其他磁盘重新克隆一份（之后照常按第 14 步 `git pull` 更新）；② pnpm 依赖缓存与 npm 缓存也可重定向到其他磁盘，先执行 `pnpm store path` 查看当前位置，再执行下面命令（路径可换成你自己的）：
+
+```bash
+# 把 pnpm 依赖缓存重定向到其他磁盘（路径换成你自己的）
+pnpm config set store-dir "/Volumes/Data/.pnpm-store"
+# 把 npm 缓存重定向到其他磁盘
+npm config set cache "/Volumes/Data/npm-cache"
+```
+
+> 重定向后，下一次 `pnpm install` / `npm install`（包括第 14 步的更新构建）会写到新位置；旧缓存先别急着删，等在新位置成功执行过一次安装确认正常后再清理。
+
 ---
 
 ### 三、界面使用教程（配截图）
@@ -276,6 +439,7 @@ http://127.0.0.1:3080
 - 构建时内存不足 → 确保已执行 `$env:NODE_OPTIONS="--max-old-space-size=4096"`（Windows）/ `export NODE_OPTIONS="--max-old-space-size=4096"`（macOS）。
 - API Key 未被识别 → Windows 检查 `echo $env:DEEPSEEK_API_KEY`；macOS 检查 `echo $DEEPSEEK_API_KEY`；如未显示，重启终端后重试，或改用界面「设置 → 模型」直接填入密钥。
 - 浏览器打开 `127.0.0.1:3080` 无响应 → 确认运行 `pnpm dsh web` 的窗口没有被关闭；查看启动输出是否出现 `dsh web: http://127.0.0.1:3080`。
+- 迁移 Home 后找不到原来的会话/设置 → 关闭并重新打开终端，运行 `echo $env:DSH_HOME`（macOS 运行 `echo $DSH_HOME`）确认是新路径；确认已用 `setx DSH_HOME` / `export DSH_HOME` 写入永久环境变量，然后重新执行 `pnpm dsh web`。
 
 ---
 
@@ -406,6 +570,89 @@ http://127.0.0.1:3080
 
 > 💡 **Tip:** If the settings panel shows **“Provided by the launch environment (read-only)”**, your API Key was detected and is ready to use.
 
+**13. Pull the latest update from GitHub (command line)**
+
+The DeepSeek Harness repository is updated continuously — pull the latest code any time from the command line:
+
+```powershell
+# 1. Enter the project directory
+cd deepseek-harness
+# 2. Pull the latest update from GitHub (the official repo's master branch)
+git pull origin master
+# 3. Sync dependencies (when the lockfile changed)
+pnpm install
+# 4. Rebuild (when the web frontend changed)
+pnpm run build
+# 5. Restart the Web UI
+pnpm dsh web
+```
+
+> 💡 **If step 2 (`git pull`) fails** (it says you have uncommitted local changes): follow the full flow below. After each step, run `git status` and read its output to decide whether to continue — it is also what tells you whether there are conflicts:
+
+```powershell
+# 1. Inspect local changes (uncommitted changes are why git pull fails)
+git status
+# 2. Commit the local changes (replace wip with your own message)
+git add .
+git commit -m "wip"
+# 3. Pull the latest update again
+git pull origin master
+# 4. Check for conflicts (if files marked "both modified" appear, continue to step 5; otherwise you are done)
+git status
+# 5. (only if there are conflicts) open the files in an editor, keep what you want, delete the <<<<<<< / ======= / >>>>>>> marker lines, and save; then mark them as resolved and finish the merge commit
+git add .
+git commit -m "merge"
+```
+
+**14. (Optional but recommended) Move DSH data off the C drive**
+
+By default DSH keeps its **Home** — all sessions, settings, credentials, skills and other data — under `~/.dsh`, which on Windows is `C:\Users\your-name\.dsh`, and it keeps growing with use. Leaving it on the C drive eats into the system disk and slows the machine down, so moving it to another drive is recommended. Pick any destination, but follow two rules: ① not on the C drive; ② outside the `deepseek-harness` project folder (so future updates/rebuilds never touch it). The example below uses `F:\AgentHarness\.dsh` — replace it with your own folder.
+
+> ⚠️ First stop the running `pnpm dsh web`: go back to its window and press `Ctrl+C`. Otherwise some files are locked and the move fails.
+
+```powershell
+# Copy the C-drive .dsh to the destination (copy only — the source is kept as-is; use your own paths)
+robocopy "$env:USERPROFILE\.dsh" "F:\AgentHarness\.dsh" /E /R:1 /W:1
+```
+
+> robocopy exit codes 0 and 1 both mean success (8 or higher means failure); the destination folder is created automatically if missing. This command only copies — the original .dsh on the C drive is left untouched; do not clean it up until the new location has proven stable.
+
+```powershell
+# Persist the new location in the user environment variable DSH_HOME (DSH reads it on startup; use your own path)
+setx DSH_HOME "F:\AgentHarness\.dsh"
+```
+
+> `setx` only affects programs started afterwards — close and reopen your terminal after running it.
+
+```powershell
+# Verify (run in the reopened terminal — it should print the new path F:\AgentHarness\.dsh)
+echo $env:DSH_HOME
+```
+
+> Once it shows the new path, go to the project folder and re-run `pnpm dsh web`; your previous sessions, settings and credentials are still there (the new location reads the same data — it was copied). Keep the original `.dsh` on the C drive until you have confirmed the new location is stable.
+
+> 🗑️ **Delete the old C-drive files only after the new location is stable**. “Stable” means it starts normally after a restart with your previous sessions and settings intact (you may also use it for a few days before deciding). Before deleting, confirm `echo $env:DSH_HOME` shows the new path and stop `pnpm dsh web` first. Deletion cannot be undone.
+
+```powershell
+# (once it is stable) delete the old C-drive .dsh — irreversible, run with care
+Remove-Item "$env:USERPROFILE\.dsh" -Recurse -Force
+```
+
+> 📋 **C-drive items belonging to the DSH setup that you can identify and delete as needed** (delete each one only after its counterpart in the new location has been verified):
+> 1. `C:\Users\your-name\.dsh` — the old Home, i.e. the target of the delete command above;
+> 2. if you cloned `deepseek-harness` onto the C drive: that project folder (including `node_modules`, usually the largest) — delete it only after the new copy starts and updates (step 13) normally.
+
+> 💡 **The project and dependency caches also take C-drive space (usually more than Home)**: ① if you cloned the `deepseek-harness` project folder (including `node_modules`) onto the C drive, move the whole folder to another drive, or clone it afresh there (then update as usual with `git pull`, step 13); ② the pnpm and npm caches default to the C drive too — run `pnpm store path` to see the current one, then redirect them (use your own paths):
+
+```powershell
+# Redirect the pnpm store to another drive (use your own path)
+pnpm config set store-dir "F:\AgentHarness\.pnpm-store"
+# Redirect the npm cache to another drive
+npm config set cache "F:\AgentHarness\npm-cache"
+```
+
+> After redirecting, the next `pnpm install` / `npm install` (including step 13's update/rebuild) writes to the new location; do not delete the old cache until one install has succeeded in the new location.
+
 #### macOS
 
 **Preparation**
@@ -508,6 +755,86 @@ http://127.0.0.1:3080
 
 > 💡 **Tip:** If the settings panel shows **“Provided by the launch environment (read-only)”**, your API Key was detected and is ready to use.
 
+**14. Pull the latest update from GitHub (command line)**
+
+The DeepSeek Harness repository is updated continuously — pull the latest code any time from the command line:
+
+```bash
+# 1. Enter the project directory
+cd deepseek-harness
+# 2. Pull the latest update from GitHub (the official repo's master branch)
+git pull origin master
+# 3. Sync dependencies (when the lockfile changed)
+pnpm install
+# 4. Rebuild (when the web frontend changed)
+pnpm run build
+# 5. Restart the Web UI
+pnpm dsh web
+```
+
+> 💡 **If step 2 (`git pull`) fails** (it says you have uncommitted local changes): follow the full flow below. After each step, run `git status` and read its output to decide whether to continue — it is also what tells you whether there are conflicts:
+
+```bash
+# 1. Inspect local changes (uncommitted changes are why git pull fails)
+git status
+# 2. Commit the local changes (replace wip with your own message)
+git add .
+git commit -m "wip"
+# 3. Pull the latest update again
+git pull origin master
+# 4. Check for conflicts (if files marked "both modified" appear, continue to step 5; otherwise you are done)
+git status
+# 5. (only if there are conflicts) open the files in an editor, keep what you want, delete the <<<<<<< / ======= / >>>>>>> marker lines, and save; then mark them as resolved and finish the merge commit
+git add .
+git commit -m "merge"
+```
+
+**15. (Optional but recommended) Move DSH data off the startup disk**
+
+By default DSH keeps its **Home** — all sessions, settings, credentials, skills and other data — under `~/.dsh` on the startup disk, and it keeps growing with use. If your Mac has only one disk you can skip this step; if you have a second disk/partition, moving it there is recommended. Pick any destination, but follow two rules: ① not on the startup disk; ② outside the `deepseek-harness` project folder. The example below uses `/Volumes/Data/.dsh` (Data is the name of your second disk — replace it; avoid external drives, since the data becomes unreachable once unplugged).
+
+> ⚠️ First stop the running `pnpm dsh web`: go back to its window and press `Ctrl+C`. Otherwise some files are locked and the move fails.
+
+```bash
+# 1. Make sure the destination disk exists (replace Data with your own disk name)
+mkdir -p "/Volumes/Data"
+# 2. Copy ~/.dsh to the destination (copy only — the source stays; use your own path)
+cp -R ~/.dsh "/Volumes/Data/.dsh"
+```
+
+```bash
+# 1. Write the new location into ~/.zshrc (persistent; use your own path)
+echo 'export DSH_HOME="/Volumes/Data/.dsh"' >> ~/.zshrc
+# 2. Reload the config (or restart Terminal)
+source ~/.zshrc
+# 3. Verify
+echo $DSH_HOME
+```
+
+> Run in Terminal; the last line should print your new path. Then re-run `pnpm dsh web` in the project folder — your previous sessions, settings and credentials are still there (the new location reads the same data — it was copied). Keep the original `~/.dsh` until you have confirmed the new location is stable.
+
+> 🗑️ **Delete the old files at the source location only after the new location is stable**. “Stable” means it starts normally after a restart with your previous sessions and settings intact (you may also use it for a few days before deciding). Before deleting, confirm `echo $DSH_HOME` shows the new path and stop `pnpm dsh web` first. Deletion cannot be undone.
+
+```bash
+# (once it is stable) delete the old ~/.dsh — irreversible, run with care
+rm -rf ~/.dsh
+```
+
+> 📋 **Startup-disk items belonging to the DSH setup that you can identify and delete as needed** (delete each one only after its counterpart in the new location has been verified):
+> 1. `~/.dsh` — the old Home, i.e. the target of the delete command above;
+> 2. if you cloned `deepseek-harness` onto the startup disk: that project folder (including `node_modules`, usually the largest) — delete it only after the new copy starts and updates (step 14) normally.
+
+> 💡 **The project and dependency caches also take startup-disk space (usually more than Home)**: ① if you cloned the `deepseek-harness` project folder (including `node_modules`) onto the startup disk, move the whole folder to another disk, or clone it afresh there (then update as usual with `git pull`, step 14); ② the pnpm and npm caches can be redirected to another disk too — run `pnpm store path` to see the current one, then redirect them (use your own paths):
+
+```bash
+# Redirect the pnpm store to another disk (use your own path)
+pnpm config set store-dir "/Volumes/Data/.pnpm-store"
+# Redirect the npm cache to another disk
+npm config set cache "/Volumes/Data/npm-cache"
+```
+
+> After redirecting, the next `pnpm install` / `npm install` (including step 14's update/rebuild) writes to the new location; do not delete the old cache until one install has succeeded in the new location.
+
 ---
 
 ### 3. Web UI Guide
@@ -552,6 +879,7 @@ After installation, open `http://127.0.0.1:3080` in your browser to see the Web 
 - Out of memory during build → make sure you ran `$env:NODE_OPTIONS="--max-old-space-size=4096"` (Windows) or `export NODE_OPTIONS="--max-old-space-size=4096"` (macOS).
 - API Key not recognized → check `echo $env:DEEPSEEK_API_KEY` on Windows or `echo $DEEPSEEK_API_KEY` on macOS; if empty, restart the terminal and retry, or enter the key directly in Settings → Models.
 - The page at `127.0.0.1:3080` doesn't respond → make sure the window running `pnpm dsh web` is still open, and check that the startup output shows `dsh web: http://127.0.0.1:3080`.
+- Old sessions/settings are missing after moving Home → close and reopen the terminal and run `echo $env:DSH_HOME` (macOS: `echo $DSH_HOME`) to confirm the new path; make sure `DSH_HOME` was persisted via `setx` / `export` in `~/.zshrc`, then re-run `pnpm dsh web`.
 
 ---
 

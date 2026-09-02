@@ -495,6 +495,8 @@ echo $env:DEEPSEEK_API_KEY</code></pre>
             </div>
         </div>
 
+        <div class="note"><span data-zh>💡 <strong>提示：</strong>设置面板中显示 <strong>“Provided by the launch environment (read-only)”</strong> 表示 API Key 已正确识别，可以直接使用（见第三章截图 04）。</span><span data-en>💡 <strong>Tip:</strong> If the settings panel shows <strong>“Provided by the launch environment (read-only)”</strong>, your API Key was detected and is ready to use (see Screenshot 04 in Chapter 3).</span></div>
+
         <div class="step">
             <span class="step-label">13</span>
             <p><span data-zh><strong>获取 GitHub 最新更新（命令行）</strong><br>DeepSeek Harness 官方仓库会持续更新，随时可通过 Git 命令行拉取最新代码：</span><span data-en><strong>Pull the latest update from GitHub (command line)</strong><br>The DeepSeek Harness repository is updated continuously — pull the latest code any time from the command line:</span></p>
@@ -533,7 +535,51 @@ git commit -m "merge"</code></pre>
             </div>
         </div>
 
-        <div class="note"><span data-zh>💡 <strong>提示：</strong>设置面板中显示 <strong>“Provided by the launch environment (read-only)”</strong> 表示 API Key 已正确识别，可以直接使用（见第三章截图 04）。</span><span data-en>💡 <strong>Tip:</strong> If the settings panel shows <strong>“Provided by the launch environment (read-only)”</strong>, your API Key was detected and is ready to use (see Screenshot 04 in Chapter 3).</span></div>
+        <div class="step">
+            <span class="step-label">14</span>
+            <p><span data-zh><strong>（可选·推荐）把 DSH 数据从 C 盘迁到其他盘</strong><br>DSH 默认把 <strong>Home</strong>（所有会话、设置、凭据、技能等数据）放在 <code>~/.dsh</code>，在 Windows 上即 <code>C:\Users\你的用户名\.dsh</code>，并随使用不断增大。留在 C 盘会挤占系统盘、拖慢电脑，建议迁到其他盘。迁移目的地可自选，但要满足两条规则：① 不在 C 盘；② 在 <code>deepseek-harness</code> 项目目录之外（避免以后更新/重建项目时被牵连）。以下以 <code>F:\AgentHarness\.dsh</code> 为例，可换成你自己的目录。</span><span data-en><strong>(Optional but recommended) Move DSH data off the C drive</strong><br>By default DSH keeps its <strong>Home</strong> — all sessions, settings, credentials, skills and other data — under <code>~/.dsh</code>, which on Windows is <code>C:\Users\your-name\.dsh</code>, and it keeps growing with use. Leaving it on the C drive eats into the system disk and slows the machine down, so moving it to another drive is recommended. Pick any destination, but follow two rules: ① not on the C drive; ② outside the <code>deepseek-harness</code> project folder (so future updates/rebuilds never touch it). The example below uses <code>F:\AgentHarness\.dsh</code> — replace it with your own folder.</span></p>
+            <div class="note"><span data-zh>⚠️ 先把正在运行的 <code>pnpm dsh web</code> 停掉：回到运行它的窗口按 <code>Ctrl+C</code>。否则有文件正被占用，迁移会失败。</span><span data-en>⚠️ First stop the running <code>pnpm dsh web</code>: go back to its window and press <code>Ctrl+C</code>. Otherwise some files are locked and the move fails.</span></div>
+            <div class="cmd-block" data-cmd="robocopy &quot;$env:USERPROFILE\.dsh&quot; &quot;F:\AgentHarness\.dsh&quot; /E /R:1 /W:1">
+                <span class="badge pwsh">PowerShell</span>
+                <pre><code><span data-zh># 把 C 盘的 .dsh 复制到目标位置（只复制，源文件原样保留；路径换成你自己的）</span><span data-en># Copy the C-drive .dsh to the destination (copy only — the source is kept as-is; use your own paths)</span>
+robocopy "$env:USERPROFILE\.dsh" "F:\AgentHarness\.dsh" /E /R:1 /W:1</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+            <div class="cmd-hint"><span data-zh>⬆ 在 PowerShell 中执行。robocopy 的退出码 0 或 1 都表示成功（8 及以上才是失败），看到提示别当报错；若目标目录不存在会自动创建。本命令只复制、不删除：C 盘原来的 .dsh 会原样保留，先不要清理，等确认新位置稳定后再自行删除。</span><span data-en>⬆ Run in PowerShell. robocopy exit codes 0 and 1 both mean success (8 or higher means failure); the destination folder is created automatically if missing. This command only copies — the original .dsh on the C drive is left untouched; do not clean it up until the new location has proven stable.</span></div>
+            <div class="cmd-block" data-cmd="setx DSH_HOME &quot;F:\AgentHarness\.dsh&quot;">
+                <span class="badge pwsh">PowerShell</span>
+                <pre><code><span data-zh># 把新位置永久写入用户环境变量 DSH_HOME（DSH 启动时会优先读取它；路径换成你自己的）</span><span data-en># Persist the new location in the user environment variable DSH_HOME (DSH reads it on startup; use your own path)</span>
+setx DSH_HOME "F:\AgentHarness\.dsh"</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+            <div class="cmd-hint"><span data-zh>⬆ 在 PowerShell 中执行。setx 只对之后新开的程序生效——执行完请关闭并重新打开终端。</span><span data-en>⬆ Run in PowerShell. setx only affects programs started afterwards — close and reopen your terminal after running it.</span></div>
+            <div class="cmd-block" data-cmd="echo $env:DSH_HOME">
+                <span class="badge pwsh">PowerShell</span>
+                <pre><code><span data-zh># 验证（在重新打开的终端里执行，应显示新路径 F:\AgentHarness\.dsh）</span><span data-en># Verify (run in the reopened terminal — it should print the new path F:\AgentHarness\.dsh)</span>
+echo $env:DSH_HOME</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+            <div class="cmd-hint"><span data-zh>⬆ 显示新路径后，进入项目目录重新执行 <code>pnpm dsh web</code> 启动；浏览器里原来的会话、设置与凭据都还在（新位置读取的是同一份数据的副本）。在确认新位置稳定之前，C 盘原来的 <code>.dsh</code> 请先保留不要删除。</span><span data-en>⬆ Once it shows the new path, go to the project folder and re-run <code>pnpm dsh web</code>; your previous sessions, settings and credentials are still there (the new location reads the same data — it was copied). Keep the original <code>.dsh</code> on the C drive until you have confirmed the new location is stable.</span></div>
+            <div class="note"><span data-zh>🗑️ <strong>确认新位置稳定后，再删除 C 盘上的旧文件</strong>。“稳定”指：重启后能正常启动、原会话与设置都还在（也可以先正常使用几天再决定）。删除前先确认 <code>$env:DSH_HOME</code> 显示的是新路径，并先关掉 <code>pnpm dsh web</code>。删除操作不可恢复。</span><span data-en>🗑️ <strong>Delete the old C-drive files only after the new location is stable</strong>. “Stable” means it starts normally after a restart with your previous sessions and settings intact (you may also use it for a few days before deciding). Before deleting, confirm <code>$env:DSH_HOME</code> shows the new path and stop <code>pnpm dsh web</code> first. Deletion cannot be undone.</span></div>
+            <div class="cmd-block" data-cmd="Remove-Item &quot;$env:USERPROFILE\.dsh&quot; -Recurse -Force">
+                <span class="badge pwsh">PowerShell</span>
+                <pre><code><span data-zh># （确认稳定后）删除 C 盘上旧的 .dsh —— 不可恢复，请谨慎执行</span><span data-en># (once it is stable) delete the old C-drive .dsh — irreversible, run with care</span>
+Remove-Item "$env:USERPROFILE\.dsh" -Recurse -Force</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+            <div class="note"><span data-zh>📋 <strong>C 盘上属于 DSH 安装、可识别并按需删除的内容</strong>（每一项都等它在新位置的对应物验证正常后再删）：<br>① <code>C:\Users\你的用户名\.dsh</code> —— 旧 Home，即上一条命令删除的目标；<br>② 若当初把 <code>deepseek-harness</code> 克隆在 C 盘：该项目目录（含 <code>node_modules</code>，通常体积最大）——在新盘副本能正常启动和更新（步骤 13）后，再删除旧目录。</span><span data-en>📋 <strong>C-drive items belonging to the DSH setup that you can identify and delete as needed</strong> (delete each one only after its counterpart in the new location has been verified):<br>① <code>C:\Users\your-name\.dsh</code> — the old Home, i.e. the target of the command above;<br>② if you cloned <code>deepseek-harness</code> onto the C drive: that project folder (including <code>node_modules</code>, usually the largest) — delete the old folder only after the new copy on the other drive starts and updates (step 13) normally.</span></div>
+            <div class="note"><span data-zh>💡 <strong>项目与依赖缓存同样占 C 盘（通常比 Home 更大）</strong>：① <code>deepseek-harness</code> 项目目录（含 <code>node_modules</code>）若当初克隆在 C 盘，请把整个文件夹搬到其他盘，或在其他盘重新克隆一份（之后照常按第 13 步 <code>git pull</code> 更新）；② pnpm 依赖缓存与 npm 缓存默认也在 C 盘，可重定向到其他盘，先执行 <code>pnpm store path</code> 查看当前位置，再执行下面命令（路径可换成你自己的）：</span><span data-en>💡 <strong>The project and dependency caches also take C-drive space (usually more than Home)</strong>: ① if you cloned the <code>deepseek-harness</code> project folder (including <code>node_modules</code>) onto the C drive, move the whole folder to another drive, or clone it afresh there (then update as usual with <code>git pull</code>, step 13); ② the pnpm and npm caches default to the C drive too — run <code>pnpm store path</code> to see the current one, then redirect them (use your own paths):</span></div>
+            <div class="cmd-block" data-cmd="pnpm config set store-dir &quot;F:\AgentHarness\.pnpm-store&quot;&#10;npm config set cache &quot;F:\AgentHarness\npm-cache&quot;">
+                <span class="badge pwsh">PowerShell</span>
+                <pre><code><span data-zh># 把 pnpm 依赖缓存重定向到其他盘（路径换成你自己的）</span><span data-en># Redirect the pnpm store to another drive (use your own path)</span>
+pnpm config set store-dir "F:\AgentHarness\.pnpm-store"
+<span data-zh># 把 npm 缓存重定向到其他盘</span><span data-en># Redirect the npm cache to another drive</span>
+npm config set cache "F:\AgentHarness\npm-cache"</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+            <div class="cmd-hint"><span data-zh>⬆ 重定向后，下一次 <code>pnpm install</code> / <code>npm install</code>（包括第 13 步的更新构建）会写到新位置；旧缓存先别急着删，等在新位置成功执行过一次安装确认正常后再清理。</span><span data-en>⬆ After redirecting, the next <code>pnpm install</code> / <code>npm install</code> (including step 13's update/rebuild) writes to the new location; do not delete the old cache until one install has succeeded in the new location.</span></div>
+        </div>
+
     </div>
 
     <!-- ========== macOS 面板 ========== -->
@@ -729,6 +775,8 @@ pnpm --version</code></pre>
             </div>
         </div>
 
+        <div class="note"><span data-zh>💡 <strong>提示：</strong>设置面板中显示 <strong>“Provided by the launch environment (read-only)”</strong> 表示 API Key 已正确识别，可以直接使用（见第三章截图 04）。</span><span data-en>💡 <strong>Tip:</strong> If the settings panel shows <strong>“Provided by the launch environment (read-only)”</strong>, your API Key was detected and is ready to use (see Screenshot 04 in Chapter 3).</span></div>
+
         <div class="step">
             <span class="step-label">14</span>
             <p><span data-zh><strong>获取 GitHub 最新更新（命令行）</strong><br>DeepSeek Harness 官方仓库会持续更新，随时可通过 Git 命令行拉取最新代码：</span><span data-en><strong>Pull the latest update from GitHub (command line)</strong><br>The DeepSeek Harness repository is updated continuously — pull the latest code any time from the command line:</span></p>
@@ -767,7 +815,49 @@ git commit -m "merge"</code></pre>
             </div>
         </div>
 
-        <div class="note"><span data-zh>💡 <strong>提示：</strong>设置面板中显示 <strong>“Provided by the launch environment (read-only)”</strong> 表示 API Key 已正确识别，可以直接使用（见第三章截图 04）。</span><span data-en>💡 <strong>Tip:</strong> If the settings panel shows <strong>“Provided by the launch environment (read-only)”</strong>, your API Key was detected and is ready to use (see Screenshot 04 in Chapter 3).</span></div>
+        <div class="step">
+            <span class="step-label">15</span>
+            <p><span data-zh><strong>（可选·推荐）把 DSH 数据从系统盘迁到其他位置</strong><br>DSH 默认把 <strong>Home</strong>（所有会话、设置、凭据、技能等数据）放在 <code>~/.dsh</code>（启动盘上），并随使用不断增大。如果 Mac 只有一块磁盘，本步可跳过；如果还有第二块磁盘/分区，建议迁过去，避免挤占系统盘。目的地可自选，但要满足两条规则：① 不在系统盘；② 在 <code>deepseek-harness</code> 项目目录之外。以下以 <code>/Volumes/Data/.dsh</code> 为例（Data 是第二块磁盘的名字，可换成你自己的；不建议放移动硬盘，拔掉后数据将无法访问）。</span><span data-en><strong>(Optional but recommended) Move DSH data off the startup disk</strong><br>By default DSH keeps its <strong>Home</strong> — all sessions, settings, credentials, skills and other data — under <code>~/.dsh</code> on the startup disk, and it keeps growing with use. If your Mac has only one disk you can skip this step; if you have a second disk/partition, moving it there is recommended. Pick any destination, but follow two rules: ① not on the startup disk; ② outside the <code>deepseek-harness</code> project folder. The example below uses <code>/Volumes/Data/.dsh</code> (Data is the name of your second disk — replace it; avoid external drives, since the data becomes unreachable once unplugged).</span></p>
+            <div class="note"><span data-zh>⚠️ 先把正在运行的 <code>pnpm dsh web</code> 停掉：回到运行它的窗口按 <code>Ctrl+C</code>。否则有文件正被占用，迁移会失败。</span><span data-en>⚠️ First stop the running <code>pnpm dsh web</code>: go back to its window and press <code>Ctrl+C</code>. Otherwise some files are locked and the move fails.</span></div>
+            <div class="cmd-block" data-cmd="mkdir -p &quot;/Volumes/Data&quot;&#10;cp -R ~/.dsh &quot;/Volumes/Data/.dsh&quot;">
+                <span class="badge terminal"><span data-zh>终端</span><span data-en>Terminal</span></span>
+                <pre><code><span data-zh># 1. 确认目标磁盘存在（把 Data 换成你自己的磁盘名）</span><span data-en># 1. Make sure the destination disk exists (replace Data with your own disk name)</span>
+mkdir -p "/Volumes/Data"
+<span data-zh># 2. 把 ~/.dsh 复制到目标位置（只复制，源保留；路径换成你自己的）</span><span data-en># 2. Copy ~/.dsh to the destination (copy only — the source stays; use your own path)</span>
+cp -R ~/.dsh "/Volumes/Data/.dsh"</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+            <div class="cmd-block" data-cmd="echo 'export DSH_HOME=&quot;/Volumes/Data/.dsh&quot;' >> ~/.zshrc&#10;source ~/.zshrc&#10;echo $DSH_HOME">
+                <span class="badge terminal"><span data-zh>终端</span><span data-en>Terminal</span></span>
+                <pre><code><span data-zh># 1. 把新位置写入 ~/.zshrc（永久生效；路径换成你自己的）</span><span data-en># 1. Write the new location into ~/.zshrc (persistent; use your own path)</span>
+echo 'export DSH_HOME="/Volumes/Data/.dsh"' >> ~/.zshrc
+<span data-zh># 2. 加载配置（或重启终端）</span><span data-en># 2. Reload the config (or restart Terminal)</span>
+source ~/.zshrc
+<span data-zh># 3. 验证</span><span data-en># 3. Verify</span>
+echo $DSH_HOME</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+            <div class="cmd-hint"><span data-zh>⬆ 在终端中执行；最后一行应显示你的新路径。然后进入项目目录重新执行 <code>pnpm dsh web</code>，浏览器里原来的会话、设置与凭据都还在（新位置读取的是同一份数据的副本）。在确认新位置稳定之前，源位置的 <code>~/.dsh</code> 请先保留不要删除。</span><span data-en>⬆ Run in Terminal; the last line should print your new path. Then re-run <code>pnpm dsh web</code> in the project folder — your previous sessions, settings and credentials are still there (the new location reads the same data — it was copied). Keep the original <code>~/.dsh</code> until you have confirmed the new location is stable.</span></div>
+            <div class="note"><span data-zh>🗑️ <strong>确认新位置稳定后，再删除源位置的旧文件</strong>。“稳定”指：重启后能正常启动、原会话与设置都还在（也可以先正常使用几天再决定）。删除前先确认 <code>echo $DSH_HOME</code> 显示的是新路径，并先关掉 <code>pnpm dsh web</code>。删除操作不可恢复。</span><span data-en>🗑️ <strong>Delete the old files at the source location only after the new location is stable</strong>. “Stable” means it starts normally after a restart with your previous sessions and settings intact (you may also use it for a few days before deciding). Before deleting, confirm <code>echo $DSH_HOME</code> shows the new path and stop <code>pnpm dsh web</code> first. Deletion cannot be undone.</span></div>
+            <div class="cmd-block" data-cmd="rm -rf ~/.dsh">
+                <span class="badge terminal"><span data-zh>终端</span><span data-en>Terminal</span></span>
+                <pre><code><span data-zh># （确认稳定后）删除源位置的 ~/.dsh —— 不可恢复，请谨慎执行</span><span data-en># (once it is stable) delete the old ~/.dsh — irreversible, run with care</span>
+rm -rf ~/.dsh</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+            <div class="note"><span data-zh>📋 <strong>系统盘上属于 DSH 安装、可识别并按需删除的内容</strong>（每一项都等它在新位置的对应物验证正常后再删）：<br>① <code>~/.dsh</code> —— 原 Home 残留，即上一条命令删除的目标；<br>② 若当初把 <code>deepseek-harness</code> 克隆在系统盘：该项目目录（含 <code>node_modules</code>，通常体积最大）——在新磁盘副本能正常启动和更新（步骤 14）后，再删除旧目录。</span><span data-en>📋 <strong>Startup-disk items belonging to the DSH setup that you can identify and delete as needed</strong> (delete each one only after its counterpart in the new location has been verified):<br>① <code>~/.dsh</code> — the old Home, i.e. the target of the command above;<br>② if you cloned <code>deepseek-harness</code> onto the startup disk: that project folder (including <code>node_modules</code>, usually the largest) — delete the old folder only after the new copy on the other disk starts and updates (step 14) normally.</span></div>
+            <div class="note"><span data-zh>💡 <strong>项目与依赖缓存同样占系统盘空间（通常比 Home 更大）</strong>：① <code>deepseek-harness</code> 项目目录（含 <code>node_modules</code>）若当初克隆在系统盘，请把整个文件夹搬到其他磁盘，或在其他磁盘重新克隆一份（之后照常按第 14 步 <code>git pull</code> 更新）；② pnpm 依赖缓存与 npm 缓存也可重定向到其他磁盘，先执行 <code>pnpm store path</code> 查看当前位置，再执行下面命令（路径可换成你自己的）：</span><span data-en>💡 <strong>The project and dependency caches also take startup-disk space (usually more than Home)</strong>: ① if you cloned the <code>deepseek-harness</code> project folder (including <code>node_modules</code>) onto the startup disk, move the whole folder to another disk, or clone it afresh there (then update as usual with <code>git pull</code>, step 14); ② the pnpm and npm caches can be redirected to another disk too — run <code>pnpm store path</code> to see the current one, then redirect them (use your own paths):</span></div>
+            <div class="cmd-block" data-cmd="pnpm config set store-dir &quot;/Volumes/Data/.pnpm-store&quot;&#10;npm config set cache &quot;/Volumes/Data/npm-cache&quot;">
+                <span class="badge terminal"><span data-zh>终端</span><span data-en>Terminal</span></span>
+                <pre><code><span data-zh># 把 pnpm 依赖缓存重定向到其他磁盘（路径换成你自己的）</span><span data-en># Redirect the pnpm store to another disk (use your own path)</span>
+pnpm config set store-dir "/Volumes/Data/.pnpm-store"
+<span data-zh># 把 npm 缓存重定向到其他磁盘</span><span data-en># Redirect the npm cache to another disk</span>
+npm config set cache "/Volumes/Data/npm-cache"</code></pre>
+                <button class="copy-btn" onclick="copyCmd(this)">复制</button>
+            </div>
+            <div class="cmd-hint"><span data-zh>⬆ 重定向后，下一次 <code>pnpm install</code> / <code>npm install</code>（包括第 14 步的更新构建）会写到新位置；旧缓存先别急着删，等在新位置成功执行过一次安装确认正常后再清理。</span><span data-en>⬆ After redirecting, the next <code>pnpm install</code> / <code>npm install</code> (including step 14's update/rebuild) writes to the new location; do not delete the old cache until one install has succeeded in the new location.</span></div>
+        </div>
+
     </div>
 
     <!-- ==================== 三、界面使用教程 ==================== -->
@@ -852,6 +942,7 @@ git commit -m "merge"</code></pre>
         <li><span data-zh>构建时内存不足 → 确保已执行 <code>$env:NODE_OPTIONS="--max-old-space-size=4096"</code>（Windows）/ <code>export NODE_OPTIONS="--max-old-space-size=4096"</code>（macOS）。</span><span data-en>Out of memory during build → make sure you ran <code>$env:NODE_OPTIONS="--max-old-space-size=4096"</code> (Windows) or <code>export NODE_OPTIONS="--max-old-space-size=4096"</code> (macOS).</span></li>
         <li><span data-zh>API Key 未被识别 → Windows 检查 <code>echo $env:DEEPSEEK_API_KEY</code>；macOS 检查 <code>echo $DEEPSEEK_API_KEY</code>；如未显示，重启终端后重试，或改用界面「设置 → 模型」直接填入密钥。</span><span data-en>API Key not recognized → check <code>echo $env:DEEPSEEK_API_KEY</code> on Windows or <code>echo $DEEPSEEK_API_KEY</code> on macOS; if empty, restart the terminal and retry, or enter the key directly in Settings → Models.</span></li>
         <li><span data-zh>浏览器打开 <code>127.0.0.1:3080</code> 无响应 → 确认运行 <code>pnpm dsh web</code> 的窗口没有被关闭；查看启动输出是否出现 <code>dsh web: http://127.0.0.1:3080</code>。</span><span data-en>The page at <code>127.0.0.1:3080</code> doesn't respond → make sure the window running <code>pnpm dsh web</code> is still open, and check that the startup output shows <code>dsh web: http://127.0.0.1:3080</code>.</span></li>
+        <li><span data-zh>迁移 Home 后找不到原来的会话/设置 → 关闭并重新打开终端，运行 <code>echo $env:DSH_HOME</code>（macOS 运行 <code>echo $DSH_HOME</code>）确认是新路径；确认已用 <code>setx DSH_HOME</code> / <code>export DSH_HOME</code> 写入永久环境变量，然后重新执行 <code>pnpm dsh web</code>。</span><span data-en>Old sessions/settings are missing after moving Home → close and reopen the terminal and run <code>echo $env:DSH_HOME</code> (macOS: <code>echo $DSH_HOME</code>) to confirm the new path; make sure <code>DSH_HOME</code> was persisted via <code>setx</code> / <code>export</code> in <code>~/.zshrc</code>, then re-run <code>pnpm dsh web</code>.</span></li>
     </ul>
 
     <div class="footer">
@@ -904,23 +995,30 @@ git commit -m "merge"</code></pre>
         }
         if (!textToCopy) return;
 
-        navigator.clipboard.writeText(textToCopy).then(function () {
-            copiedFeedback(btn);
-        }).catch(function () {
+        function legacyCopy() {
             const textarea = document.createElement('textarea');
             textarea.value = textToCopy;
+            textarea.setAttribute('readonly', '');
+            textarea.style.position = 'fixed';
+            textarea.style.left = '-9999px';
             document.body.appendChild(textarea);
             textarea.select();
-            try {
-                document.execCommand('copy');
-                copiedFeedback(btn);
-            } catch (e) {
-                alert('复制失败，请手动复制。');
-            }
+            let ok = false;
+            try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
             document.body.removeChild(textarea);
-        });
-    }
+            if (ok) copiedFeedback(btn); else alert('复制失败，请手动复制。');
+        }
 
+        try {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(textToCopy).then(function () {
+                    copiedFeedback(btn);
+                }).catch(legacyCopy);
+                return;
+            }
+        } catch (e) { /* fall through to legacyCopy */ }
+        legacyCopy();
+    }
     function copiedFeedback(btn) {
         const originalText = btn.textContent;
         btn.textContent = btn.textContent === 'Copy' || document.documentElement.lang === 'en' ? 'Copied ✓' : '已复制 ✓';
